@@ -1,9 +1,9 @@
 package net.qwerty2501.radoc
 
-case class Request private (method: Method,
-                            path: String,
-                            headers: HeaderMap,
-                            content: Content) {}
+case class Request(method: Method,
+                   path: String,
+                   headers: HeaderMap,
+                   content: Content) {}
 
 object Request {
 

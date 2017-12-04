@@ -1,8 +1,6 @@
 package net.qwerty2501.radoc
 
-case class Response private (status: Status,
-                             headers: HeaderMap,
-                             content: Content)
+case class Response(status: Status, headers: HeaderMap, content: Content)
 
 object Response {
   def apply(status: Status): Response =
