@@ -7,5 +7,5 @@ case class Status(statusCode: Int) {
 }
 
 object Statuses {
-  final val Ok = Status(200)
+  final val OK = Status(200)
 }
