@@ -3,7 +3,8 @@ package net.qwerty2501.radoc
 trait Content {}
 
 object Content {
-  def fromText(text: String): Content =
+  def apply(): Content = NothingContent()
+  def apply(text: String): Content =
     if (text != "") TextContent(text) else NothingContent()
 }
 
