@@ -19,5 +19,6 @@ trait Path {
 
 object Path {
   def apply(path: String): Path = AbsolutePath(path)
-  def apply(path: String, params: Any*): Path = FormattedPath(path, params: _*)
+  def apply(format: String, params: Any*): Path =
+    FormattedPath(format, params: _*)
 }
