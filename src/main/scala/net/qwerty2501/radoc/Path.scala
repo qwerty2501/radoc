@@ -5,10 +5,10 @@ trait Path {
   val displayPath: String
   val actualPath: String
 
-  override def hashCode() = displayPath.hashCode
+  override def hashCode() = (displayPath, actualPath).hashCode()
   override def equals(o: Any) = {
     o match {
-      case path: Path => path.displayPath == this.actualPath
+      case path: Path => path.hashCode() == this.hashCode()
       case _          => false
     }
 
