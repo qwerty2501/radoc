@@ -19,20 +19,20 @@ case class Request(method: Method,
 
 object Request {
 
-  def get(path: Path): Request = apply(Method.GET, path)
-  def get(path: Path, headers: HeaderMap) = apply(Method.GET, path, headers)
-  def post(path: Path, content: String) = apply(Method.POST, path, content)
+  def get(path: Path): Request = apply(Method.Get, path)
+  def get(path: Path, headers: HeaderMap) = apply(Method.Get, path, headers)
+  def post(path: Path, content: String) = apply(Method.Post, path, content)
   def post(path: Path, headers: HeaderMap, content: String) =
-    apply(Method.POST, path, headers, content)
-  def put(path: Path, content: String) = apply(Method.PUT, path, content)
+    apply(Method.Post, path, headers, content)
+  def put(path: Path, content: String) = apply(Method.Put, path, content)
   def put(path: Path, headers: HeaderMap, content: String) =
-    apply(Method.PUT, path, headers, content)
+    apply(Method.Put, path, headers, content)
 
-  def delete(path: Path) = apply(Method.DELETE, path)
+  def delete(path: Path) = apply(Method.Delete, path)
   def delete(path: Path, headers: HeaderMap) =
-    apply(Method.DELETE, path, headers)
+    apply(Method.Delete, path, headers)
   def delete(path: Path, headers: HeaderMap, content: String) =
-    apply(Method.DELETE, path, headers, content)
+    apply(Method.Delete, path, headers, content)
 
   def apply(method: Method, path: Path, headers: HeaderMap) =
     new Request(method, path, headers)
