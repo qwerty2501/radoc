@@ -17,7 +17,7 @@ object APIDocument {
       requestResponseDocuments: Seq[RequestResponseDocument]) =
     requestResponseDocuments.groupBy(_.requestResponses.head._1.path).map {
       that =>
-        that._1 -> RequestResponseContainer(that._2)
+        that._1.toString -> RequestResponseContainer(that._2)
     }
   def createFromRequestResponseDocuments(
       requestResponseDocuments: Seq[RequestResponseDocument]): APIDocument =
