@@ -1,25 +1,19 @@
 package net.qwerty2501.radoc
 
-case class APIDocument(apis: Map[String, RequestResponseContainer]) {}
+private case class APIDocument(messageDocuments: Seq[MessageDocument],
+                               description: String) {
+  if (checkRequestResponses(messageDocuments) == false) {
+    throw new IllegalArgumentException(
+      "messageDocuments should be same method and paths.")
+  }
 
-object APIDocument {
+  private def checkRequestResponses(
+      requestResponses: Seq[MessageDocument]): Boolean = {
 
-  def createFromRequestResponsePairs(
-      requestResponses: Seq[(Request, Response)]): APIDocument =
-    new APIDocument(
-      APIDocument.createAPIsMap(
-        requestResponses
-          .groupBy(that => that._1.method -> that._1.path.displayPath)
-          .map(that => RequestResponseDocument(that._2))
-          .toSeq))
-
-  private def createAPIsMap(
-      requestResponseDocuments: Seq[RequestResponseDocument]) =
-    requestResponseDocuments.groupBy(_.requestResponses.head._1.path).map {
-      that =>
-        that._1.toString -> RequestResponseContainer(that._2)
-    }
-  def createFromRequestResponseDocuments(
-      requestResponseDocuments: Seq[RequestResponseDocument]): APIDocument =
-    APIDocument(createAPIsMap(requestResponseDocuments))
+    val head = requestResponses.head
+    requestResponses
+      .filter(requestResponse =>
+        requestResponse.request.method == head.request.method && requestResponse.request.path.displayPath == head.request.path.displayPath)
+      .length == requestResponses.length
+  }
 }
