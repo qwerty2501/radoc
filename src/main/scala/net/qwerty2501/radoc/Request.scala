@@ -49,6 +49,8 @@ object Request {
 
   def post(path: Path, content: String) = apply(Method.Post, path, content)
   def post(path: String, content: String) = apply(Method.Post, path, content)
+  def post(path: Path, content: Content) = apply(Method.Post, path, content)
+  def post(path: String, content: Content) = apply(Method.Post, path, content)
   def post(path: Path, headers: HeaderMap, content: String) =
     apply(Method.Post, path, headers, content)
   def post(path: String, headers: HeaderMap, content: String) =
@@ -56,6 +58,8 @@ object Request {
 
   def put(path: Path, content: String) = apply(Method.Put, path, content)
   def put(path: String, content: String) = apply(Method.Put, path, content)
+  def put(path: Path, content: Content) = apply(Method.Put, path, content)
+  def put(path: String, content: Content) = apply(Method.Put, path, content)
   def put(path: Path, headers: HeaderMap, content: String) =
     apply(Method.Put, path, headers, content)
   def put(path: String, headers: HeaderMap, content: String) =
@@ -70,6 +74,10 @@ object Request {
   def delete(path: Path, headers: HeaderMap, content: String) =
     apply(Method.Delete, path, headers, content)
   def delete(path: String, headers: HeaderMap, content: String) =
+    apply(Method.Delete, path, headers, content)
+  def delete(path: Path, headers: HeaderMap, content: Content) =
+    apply(Method.Delete, path, headers, content)
+  def delete(path: String, headers: HeaderMap, content: Content) =
     apply(Method.Delete, path, headers, content)
 
   def apply(method: Method, path: Path, headers: HeaderMap) =
@@ -92,4 +100,9 @@ object Request {
     new Request(method, path, headers, TextContent(text))
   def apply(method: Method, path: String, headers: HeaderMap, text: String) =
     new Request(method, path, headers, TextContent(text))
+
+  def apply(method: Method,
+            path: String,
+            headers: HeaderMap,
+            content: Content) = new Request(method, path, headers, content)
 }
