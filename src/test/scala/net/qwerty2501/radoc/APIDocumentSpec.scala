@@ -6,7 +6,7 @@ class APIDocumentSpec extends FlatSpec with Matchers {
   it should "can be create from request response pairs." in {
     val expectedPath = "/test/path"
     val expectedMethod = Method.Get
-    val expectedStatus = Status.OK
+    val expectedStatus = Status.Ok
     val document = APIDocument.createFromRequestResponsePairs(
       Seq((Request.get(expectedPath) -> Response(expectedStatus))))
 
@@ -27,21 +27,21 @@ class APIDocumentSpec extends FlatSpec with Matchers {
   it should "be categorized by path and grouped by method and path" in {
     val category1Path = "category1/path"
     val expectedCategory1Group1Pairs =
-      Seq((Request.get(category1Path), Response(Status.OK)),
-          (Request.get(category1Path), Response(Status.OK)))
+      Seq((Request.get(category1Path), Response(Status.Ok)),
+          (Request.get(category1Path), Response(Status.Ok)))
     val expectedContent1 = "expectedContent1"
     val expectedContent2 = "expectedContent2"
     val expectedCategory1Group2Pairs =
       Seq(
-        (Request.post(category1Path, expectedContent1), Response(Status.OK)),
-        (Request.post(category1Path, expectedContent2), Response(Status.OK))
+        (Request.post(category1Path, expectedContent1), Response(Status.Ok)),
+        (Request.post(category1Path, expectedContent2), Response(Status.Ok))
       )
     val category2PathFormat = "category2/:id"
     val expectedCategory2Group1Pairs =
       Seq((Request.get(FormattedPath(category2PathFormat, 32)),
-           Response(Status.OK)),
+           Response(Status.Ok)),
           (Request.get(FormattedPath(category2PathFormat, 22)),
-           Response(Status.OK)))
+           Response(Status.Ok)))
 
     val document = APIDocument.createFromRequestResponsePairs(
       expectedCategory1Group1Pairs ++ expectedCategory1Group2Pairs ++ expectedCategory2Group1Pairs)
