@@ -49,10 +49,10 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
     res
   }
 
-  def request(req: Request, description: String) =
+  def request(req: Request, description: String): Response =
     request(req, "", description, Version(), Map())
 
-  def request(req: Request) = request(req, "")
+  def request(req: Request): Response = request(req, "")
 
   private def append(req: Request,
                      res: Response,
