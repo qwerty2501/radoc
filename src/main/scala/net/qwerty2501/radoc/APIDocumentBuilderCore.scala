@@ -2,8 +2,8 @@ package net.qwerty2501.radoc
 
 import scala.collection.mutable
 
-class APIDocumentBuilder(private val apiClient: APIClient) {
-  private var rootAPIDocument = new RootAPIDocument(Map())
+class APIDocumentBuilderCore(private val apiClient: APIClient) {
+  private var rootAPIDocument = RootAPIDocument(Map())
 
   def request(req: Request,
               category: String,
@@ -81,7 +81,7 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
       throw new IllegalStateException("description is already set.")
     }
 
-    if (apiDocument.extendArguments.size != 0 && extendArgs.size != 0) {
+    if (apiDocument.extendArguments.nonEmpty && extendArgs.nonEmpty) {
       throw new IllegalStateException("extendArguments is already set.")
     }
 
@@ -119,6 +119,6 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
   }
 }
 
-object APIDocumentBuilder {
-  def apply(apiClient: APIClient) = new APIDocumentBuilder(apiClient)
+object APIDocumentBuilderCore {
+  def apply(apiClient: APIClient) = new APIDocumentBuilderCore(apiClient)
 }
