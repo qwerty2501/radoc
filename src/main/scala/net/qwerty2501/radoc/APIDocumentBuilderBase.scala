@@ -6,71 +6,36 @@ abstract class APIDocumentBuilderBase(private val apiClient: APIClient) {
   private var rootAPIDocument = RootAPIDocument(Map())
 
   def getRootAPIDocument: RootAPIDocument = rootAPIDocument
-  def request(req: Request,
-              category: String,
-              group: String,
-              description: String,
-              apiName: String,
-              version: Version,
-              extendArgs: Map[String, String]): Response = {
+  def request(req: Request, documentArgs: DocumentArgs): Response = {
     val res = apiClient.request(req)
-    append(req, res, category, group, description, apiName, version, extendArgs)
+    append(req, res, documentArgs)
     res
   }
 
-  def request(req: Request,
-              category: String,
-              description: String,
-              apiName: String,
-              version: Version,
-              extendArgs: Map[String, String]): Response = {
-    request(req,
-            category,
-            req.path.displayPath,
-            description,
-            apiName,
-            version,
-            extendArgs)
-  }
-
-  def request(req: Request,
-              category: String,
-              description: String,
-              version: Version,
-              extendArgs: Map[String, String]): Response = {
-    val res = apiClient.request(req)
-    append(req,
-           res,
-           category,
-           req.path.displayPath,
-           description,
-           res.status.toString,
-           version,
-           extendArgs)
-    res
-  }
+  def request(req: Request, category: String, description: String): Response =
+    request(req, DocumentArgs(category, description, Version(), Map()))
 
   def request(req: Request, description: String): Response =
-    request(req, "", description, Version(), Map())
+    request(req, "", description)
 
   def request(req: Request): Response = request(req, "")
 
   private def append(req: Request,
                      res: Response,
-                     category: String,
-                     group: String,
-                     description: String,
-                     apiName: String,
-                     version: Version,
-                     extendArgs: Map[String, String]): Unit = {
-    val apiGroup = if (group == "") req.path.displayPath else group
-    val messageName = if (apiName == "") res.status.toString else ""
+                     documentArgs: DocumentArgs): Unit = {
+    val apiGroup =
+      if (documentArgs.group == "") req.path.displayPath else documentArgs.group
+    val messageName =
+      if (documentArgs.apiName == "") res.status.toString
+      else documentArgs.apiName
     val rootAPIDocumentWithVersion = rootAPIDocument.documents
-      .getOrElse(version, RootAPIDocumentWithVersion(version, Map()))
+      .getOrElse(documentArgs.version,
+                 RootAPIDocumentWithVersion(documentArgs.version, Map()))
 
     val apiDocumentCategory =
       rootAPIDocumentWithVersion.apiCategories
-        .getOrElse(category, APIDocumentCategory(category, Map()))
+        .getOrElse(documentArgs.category,
+                   APIDocumentCategory(documentArgs.category, Map()))
     val apiDocumentGroup = apiDocumentCategory.apiDocumentGroups
       .getOrElse(apiGroup, APIDocumentGroup(apiGroup, Map()))
 
@@ -78,19 +43,21 @@ abstract class APIDocumentBuilderBase(private val apiClient: APIClient) {
     val apiDocument = apiDocumentGroup.apiDocuments
       .getOrElse(groupKey, APIDocument(Seq(), "", Map()))
 
-    if (apiDocument.description != "" && description != "") {
+    if (apiDocument.description != "" && documentArgs.description != "") {
       throw new IllegalStateException("description is already set.")
     }
 
-    if (apiDocument.extendArguments.nonEmpty && extendArgs.nonEmpty) {
+    if (apiDocument.extendArguments.nonEmpty && documentArgs.extendArgs.nonEmpty) {
       throw new IllegalStateException("extendArguments is already set.")
     }
 
     val newAPIDocument = APIDocument(
       apiDocument.messageDocuments :+
-        MessageDocument(apiName, req, res),
-      if (description != "") description else apiDocument.description,
-      extendArgs)
+        MessageDocument(documentArgs.apiName, req, res),
+      if (documentArgs.description != "") documentArgs.description
+      else apiDocument.description,
+      documentArgs.extendArgs
+    )
 
     val apiDocuments = mutable.Map(apiDocumentGroup.apiDocuments.toSeq: _*)
     apiDocuments.put(groupKey, newAPIDocument)
@@ -102,19 +69,20 @@ abstract class APIDocumentBuilderBase(private val apiClient: APIClient) {
     apiDocumentGroups.put(apiGroup, newAPIDocumentGroup)
 
     val newAPIDocumentCategory =
-      APIDocumentCategory(category, apiDocumentGroups.toMap)
+      APIDocumentCategory(documentArgs.category, apiDocumentGroups.toMap)
 
     val apiCategories =
       mutable.Map(rootAPIDocumentWithVersion.apiCategories.toSeq: _*)
 
-    apiCategories.put(category, newAPIDocumentCategory)
+    apiCategories.put(documentArgs.category, newAPIDocumentCategory)
 
     val newRooAPIDocumentWithVersion =
-      RootAPIDocumentWithVersion(version, apiCategories.toMap)
+      RootAPIDocumentWithVersion(documentArgs.version, apiCategories.toMap)
 
     val newRootAPIDocumentWithVersions =
       mutable.Map(rootAPIDocument.documents.toSeq: _*)
-    newRootAPIDocumentWithVersions.put(version, newRooAPIDocumentWithVersion)
+    newRootAPIDocumentWithVersions.put(documentArgs.version,
+                                       newRooAPIDocumentWithVersion)
 
     rootAPIDocument = RootAPIDocument(newRootAPIDocumentWithVersions.toMap)
   }
