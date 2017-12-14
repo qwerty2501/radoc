@@ -10,15 +10,17 @@ class APIDocumentBuilderBaseSpec extends FlatSpec with Matchers {
     val path = "test/path"
     val response = apiDocumentBuilder.request(Request.get(path))
 
-    val messageDocument = apiDocumentBuilder.getRootAPIDocument
+    val apiDocument = apiDocumentBuilder.getRootAPIDocument
       .documents(Version())
       .apiCategories("")
       .apiDocumentGroups(path)
       .apiDocuments(Method.Get, path)
-      .messageDocuments
-      .head
+    apiDocument.description should be("")
+
+    val messageDocument = apiDocument.messageDocuments.head
 
     messageDocument.request.path.displayPath should be(path)
     messageDocument.response should be(response)
+
   }
 }
