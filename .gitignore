@@ -39,7 +39,7 @@ cmake-build-debug/
 
 # Mongo Explorer plugin:
 .idea/**/mongoSettings.xml
-
+.idea/modules/radoc-core-build.iml
 ## File-based project format:
 *.iws
 
