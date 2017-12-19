@@ -25,9 +25,7 @@ abstract class APIDocumentBuilderBase(private val apiClient: APIClient) {
                      documentArgs: DocumentArgs): Unit = {
     val apiGroup =
       if (documentArgs.group == "") req.path.displayPath else documentArgs.group
-    val messageName =
-      if (documentArgs.apiName == "") res.status.toString
-      else documentArgs.apiName
+    val messageName =documentArgs.messageName
     val rootAPIDocumentWithVersion = rootAPIDocument.documents
       .getOrElse(documentArgs.version,
                  RootAPIDocumentWithVersion(documentArgs.version, Map()))
@@ -53,7 +51,7 @@ abstract class APIDocumentBuilderBase(private val apiClient: APIClient) {
 
     val newAPIDocument = APIDocument(
       apiDocument.messageDocuments :+
-        MessageDocument(documentArgs.apiName, req, res),
+        MessageDocument(documentArgs.messageName, req, res),
       if (documentArgs.description != "") documentArgs.description
       else apiDocument.description,
       documentArgs.extendArgs
