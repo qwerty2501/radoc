@@ -13,19 +13,39 @@ abstract class APIDocumentBuilderBase(private val apiClient: APIClient) {
   }
 
   def request(req: Request, category: String, description: String): Response =
-    request(req, DocumentArgs(category, description, Version(), Map()))
+    request(req, category, description, Version())
+  def request(req: Request,
+              category: String,
+              description: String,
+              version: Version): Response =
+    request(req, DocumentArgs(category, description, version, Map()))
 
   def request(req: Request, description: String): Response =
     request(req, "", description)
 
   def request(req: Request): Response = request(req, "")
 
-  private def append(req: Request,
-                     res: Response,
-                     documentArgs: DocumentArgs): Unit = {
+  def append(req: Request, res: Response): Unit =
+    append(req, res, "")
+  def append(req: Request, res: Response, description: String): Unit =
+    append(req, res, "", description)
+
+  def append(req: Request,
+             res: Response,
+             category: String,
+             description: String): Unit =
+    append(req, res, category, description, Version())
+  def append(req: Request,
+             res: Response,
+             category: String,
+             description: String,
+             version: Version): Unit =
+    append(req, res, DocumentArgs(category, description, version, Map()))
+
+  def append(req: Request, res: Response, documentArgs: DocumentArgs): Unit = {
     val apiGroup =
       if (documentArgs.group == "") req.path.displayPath else documentArgs.group
-    val messageName =documentArgs.messageName
+    val messageName = documentArgs.messageName
     val rootAPIDocumentWithVersion = rootAPIDocument.documents
       .getOrElse(documentArgs.version,
                  RootAPIDocumentWithVersion(documentArgs.version, Map()))
