@@ -33,7 +33,7 @@ class APIDocumentRendererSpec extends FlatSpec with Matchers {
     val filePath = "doc/samples/empty_document.html"
     val path = Paths.get(filePath)
     Files.deleteIfExists(path)
-    APIDocumentRenderer.generateDocument(
+    APIDocumentRenderer.renderTo(
       RootAPIDocument("empty doc title", Map()),
       filePath)
     Files.exists(path) should be(true)
@@ -44,7 +44,7 @@ class APIDocumentRendererSpec extends FlatSpec with Matchers {
 
     val path = Paths.get(filePath)
     Files.deleteIfExists(path)
-    APIDocumentRenderer.generateDocument(getSampleDocument, filePath)
+    APIDocumentRenderer.renderTo(getSampleDocument, filePath)
     Files.exists(path) should be(true)
 
   }

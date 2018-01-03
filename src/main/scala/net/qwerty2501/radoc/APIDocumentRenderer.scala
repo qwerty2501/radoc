@@ -6,12 +6,12 @@ import org.fusesource.scalate._
 import scala.util.Try
 object APIDocumentRenderer {
 
-  def generateDocument(rootAPIDocument: RootAPIDocument,
-                       outputPath: String): Unit =
-    generateDocument(rootAPIDocument, outputPath, APIDocumentRendererContext())
-  def generateDocument(rootAPIDocument: RootAPIDocument,
-                       outputPath: String,
-                       context: APIDocumentRendererContext): Unit = {
+  def renderTo(rootAPIDocument: RootAPIDocument,
+               outputPath: String): Unit =
+    renderTo(rootAPIDocument, outputPath, APIDocumentRendererContext())
+  def renderTo(rootAPIDocument: RootAPIDocument,
+               outputPath: String,
+               context: APIDocumentRendererContext): Unit = {
     APIDocumentRendererInternal.outputDocument(
       APIDocumentRendererInternal.render(rootAPIDocument, context),
       outputPath)
