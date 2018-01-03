@@ -15,24 +15,25 @@ object APIDocumentGenerator {
     APIDocumentGeneratorInternal.outputDocument(
       APIDocumentGeneratorInternal.generate(rootAPIDocument, context),
       outputPath)
-
   }
 
 }
 
 private object APIDocumentGeneratorInternal {
-  def outputDocument(document: String, outputPath: String): Try[Unit] = {
+  def outputDocument(document: String, outputPath: String): Unit = {
     val printWriter = new PrintWriter(new File(outputPath))
-    Try {
-      printWriter.write(document)
-      printWriter.close()
-    }
+    printWriter.write(document)
+    printWriter.close()
+
   }
 
   def generate(rootAPIDocument: RootAPIDocument,
                context: APIDocumentGenerateContext): String = {
+
     val engine = new TemplateEngine
-    engine.layout(context.templatePath,
-                  Map("rootAPIDocument" -> rootAPIDocument))
+    engine.layout(
+      context.rootAPIDocumentTemplatePath,
+      Map("rootAPIDocument" -> rootAPIDocument, "generateContext" -> context))
+
   }
 }
