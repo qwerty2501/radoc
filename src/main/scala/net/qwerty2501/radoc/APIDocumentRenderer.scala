@@ -13,7 +13,7 @@ object APIDocumentRenderer {
                        outputPath: String,
                        context: APIDocumentRendererContext): Unit = {
     APIDocumentRendererInternal.outputDocument(
-      APIDocumentRendererInternal.generate(rootAPIDocument, context),
+      APIDocumentRendererInternal.render(rootAPIDocument, context),
       outputPath)
   }
 
@@ -27,8 +27,8 @@ private object APIDocumentRendererInternal {
 
   }
 
-  def generate(rootAPIDocument: RootAPIDocument,
-               context: APIDocumentRendererContext): String = {
+  def render(rootAPIDocument: RootAPIDocument,
+             context: APIDocumentRendererContext): String = {
 
     val engine = new TemplateEngine
     engine.layout(

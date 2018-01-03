@@ -53,7 +53,7 @@ class APIDocumentRendererSpec extends FlatSpec with Matchers {
     val rootAPIDocument = getSampleDocument
 
     APIDocumentRendererInternal
-      .generate(rootAPIDocument, APIDocumentRendererContext()) should not be empty
+      .render(rootAPIDocument, APIDocumentRendererContext()) should not be empty
 
   }
 
