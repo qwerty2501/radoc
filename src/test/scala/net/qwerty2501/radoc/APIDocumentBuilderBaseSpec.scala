@@ -54,24 +54,28 @@ class APIDocumentBuilderBaseSpec extends FlatSpec with Matchers {
     }
   }
 
-  it should "can add same path request but difference method" in{
+  it should "can add same path request but difference method" in {
+
     val apiDocumentBuilder = new APIDocumentBuilderMock()
     val targetPath = "test/path"
     apiDocumentBuilder.request(Request.get(targetPath))
-    apiDocumentBuilder.request(Request.post(targetPath,Content()))
-    val apiDocumentGroup = apiDocumentBuilder.getRootAPIDocument.documents(Version()).apiCategories("").apiDocumentGroups(targetPath)
+    apiDocumentBuilder.request(Request.post(targetPath, Content()))
+    val apiDocumentGroup = apiDocumentBuilder.getRootAPIDocument
+      .documents(Version())
+      .apiCategories("")
+      .apiDocumentGroups(targetPath)
 
-    val getAPIDocument = apiDocumentGroup.apiDocuments(Method.Get,targetPath)
-    getAPIDocument.messageDocuments.length should  be (1)
+    val getAPIDocument = apiDocumentGroup.apiDocuments(Method.Get, targetPath)
+    getAPIDocument.messageDocuments.length should be(1)
     val getMessageDocument = getAPIDocument.messageDocuments.head
-    getMessageDocument.request.method should be (Method.Get)
-    getMessageDocument.request.path.displayPath should be (targetPath)
+    getMessageDocument.request.method should be(Method.Get)
+    getMessageDocument.request.path.displayPath should be(targetPath)
 
-    val postAPIDocument = apiDocumentGroup.apiDocuments(Method.Post,targetPath)
-    postAPIDocument.messageDocuments.length should be (1)
+    val postAPIDocument = apiDocumentGroup.apiDocuments(Method.Post, targetPath)
+    postAPIDocument.messageDocuments.length should be(1)
     val postMessageDocument = postAPIDocument.messageDocuments.head
-    postMessageDocument.request.method should be (Method.Post)
-    postMessageDocument.request.path.displayPath should be (targetPath)
+    postMessageDocument.request.method should be(Method.Post)
+    postMessageDocument.request.path.displayPath should be(targetPath)
 
   }
 }
