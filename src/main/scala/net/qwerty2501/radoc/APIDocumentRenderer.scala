@@ -44,19 +44,60 @@ private object APIDocumentRendererInternal {
           <meta charset="UTF-8"/>
           <title>{rootAPIDocument.title}</title>
           <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous"/>
+          <style>
+            {
+              """
+                |.sidebar {
+                |  position: fixed;
+                |  top: 51px;
+                |  bottom: 0;
+                |  left: 0;
+                |  z-index: 1000;
+                |  padding: 20px;
+                |  overflow-x: hidden;
+                |  overflow-y: auto;
+                |  border-right: 1px solid #eee;
+                |}
+                |
+                |.sidebar {
+                |  padding-left: 0;
+                |  padding-right: 0;
+                |}
+                |
+                |.sidebar .nav {
+                |  margin-bottom: 20px;
+                |}
+                |
+                |.sidebar .nav-item {
+                |  width: 100%;
+                |}
+                |
+                |.sidebar .nav-item + .nav-item {
+                |  margin-left: 0;
+                |}
+                |
+                |.sidebar .nav-link {
+                |  border-radius: 0;
+                |}
+                |
+              """.stripMargin
+            }
+          </style>
         </head>
         <body>
+
           <nav class="navbar navbar-light bg-primary">
+
+
+            <button class="navbar-toggler navbar-toggler-left" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false">
+              <span class="navbar-toggler-icon"></span>
+            </button>
+
             <a class="navbar-brand" href="#">{rootAPIDocument.title}</a>
             {
               if (rootAPIDocument.documents.size > 1){
-                <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
-                </button>
 
-                  <div class="collapse navbar-collapse" id="navbarNavDropdown">
-
-                    <ul class="navbar-nav">
+                    <ul class="dropdown-menu">
                       {
                         rootAPIDocument.documents.map{doc=>
                           <li class="nav-item">
@@ -65,11 +106,10 @@ private object APIDocumentRendererInternal {
                         }
                       }
                     </ul>
-                  </div>
               }
             }
           </nav>
-          <!--
+
           {
             if (rootAPIDocument.documents.size == 1) {
               renderRootAPIDocumentWithVersion(rootAPIDocument.documents.head._2,context)
@@ -77,7 +117,7 @@ private object APIDocumentRendererInternal {
 
             }
           }
-          -->
+
 
           <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
@@ -101,31 +141,34 @@ private object APIDocumentRendererInternal {
       }
     }
 
-    <div class="container-fluid">
-      <div class="row">
-        <nav class="col-sm-3 col-md-2 hidden-xs-down bg-secondary sidebar">
-          <ul class="nav nav-pills flex-column">
+    {
+      <div class="container-fluid">
+        <div class="row">
+          <nav id="sidebar" class="col-sm-3 col-md-2 hidden-xs-down sidebar collapse show bg-dark">
+            <ul class="nav nav-pills flex-column">
 
-            {if (apiCategories.exists(_._1 == "")) {
-            renderGroupHeaders(apiCategories.head._2.apiDocumentGroups.keys.toSeq)
-          }}
-          </ul>
+              {if (apiCategories.exists(_._1 == "")) {
+              renderGroupHeaders(apiCategories.head._2.apiDocumentGroups.keys.toSeq)
+            }}
+            </ul>
             {
             apiCategories.filter(_._1 != "").map{tAPICategory=>
               <p>{tAPICategory._1}</p>
                 <ul class="nav nav-pills flex-column">
-              renderGroupHeaders(tAPICategory._2.apiDocumentGroups.keys.toSeq)
-                  </ul>
+                  renderGroupHeaders(tAPICategory._2.apiDocumentGroups.keys.toSeq)
+                </ul>
             }
             }
 
 
-        </nav>
-        <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
-        </main>
+          </nav>
+
+          <main class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 pt-3">
+          </main>
+        </div>
+
       </div>
-
-    </div>
+    }
 
   }
 }
