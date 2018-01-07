@@ -89,7 +89,7 @@ private object APIDocumentRendererInternal {
           <nav class="navbar navbar-light bg-primary">
 
 
-            <button class="navbar-toggler navbar-toggler-left pull-sm-left" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false">
+            <button class="navbar-toggler float-sm-left" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false">
               <span class="navbar-toggler-icon"></span>
             </button>
 
@@ -97,7 +97,7 @@ private object APIDocumentRendererInternal {
 
             {
               if (rootAPIDocument.documents.size > 1){
-                    <select class="span2 navbar-btn pull-sm-right">
+                    <select class="span2 navbar-btn float-sm-right">
                         {
                         rootAPIDocument.documents.map{doc=>
                           <option value={doc._1.toString}>{doc._1.toString}</option>
