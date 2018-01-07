@@ -89,25 +89,26 @@ private object APIDocumentRendererInternal {
           <nav class="navbar navbar-light bg-primary">
 
 
-            <button class="navbar-toggler navbar-toggler-left" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false">
+            <button class="navbar-toggler navbar-toggler-left pull-sm-left" type="button" data-toggle="collapse" data-target="#sidebar" aria-controls="sidebar" aria-expanded="false">
               <span class="navbar-toggler-icon"></span>
             </button>
 
-            <a class="navbar-brand" href="#">{rootAPIDocument.title}</a>
+            <a class="navbar-brand mx-auto" href="#">{rootAPIDocument.title}</a>
+
             {
               if (rootAPIDocument.documents.size > 1){
-
-                    <ul class="dropdown-menu">
-                      {
+                    <select class="span2 navbar-btn pull-sm-right">
+                        {
                         rootAPIDocument.documents.map{doc=>
-                          <li class="nav-item">
-                            <a class="nav-link" href="#">{doc._1.toString}</a>
-                          </li>
+                          <option value={doc._1.toString}>{doc._1.toString}</option>
                         }
-                      }
-                    </ul>
+                        }
+
+                    </select>
+
               }
             }
+
           </nav>
 
           {
