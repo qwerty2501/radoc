@@ -118,8 +118,6 @@ private object APIDocumentRendererInternal {
                 |
                 |.sidebar-nav li a {
                 |  display: block;
-                |  text-decoration: none;
-                |  color: #999999;
                 |}
                 |
                 |.sidebar-nav li a:hover {
@@ -170,17 +168,18 @@ private object APIDocumentRendererInternal {
                 |  }
                 |}
                 |
+                |
               """.stripMargin
             }
           </style>
         </head>
 
         <body>
-          <nav class="navbar navbar-light bg-primary">
+          <nav class="navbar navbar-dark bg-dark">
 
 
-          <button class="navbar-toggler float-sm-left" id="menu-toggle">
-            <span class="navbar-toggler-icon"></span>
+          <button class="navbar-toggler float-sm-left " id="menu-toggle">
+            <span class="navbar-toggler-icon "></span>
           </button>
 
           <a class="navbar-brand mx-auto" href="#">
