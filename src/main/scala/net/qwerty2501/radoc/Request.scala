@@ -3,7 +3,8 @@ package net.qwerty2501.radoc
 case class Request(method: Method,
                    path: Path,
                    headers: Map[String, String],
-                   content: Content) {
+                   content: Content)
+    extends Message {
 
   def this(method: Method, path: Path, headers: Map[String, String]) =
     this(method, path, headers, Content())

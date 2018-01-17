@@ -2,7 +2,8 @@ package net.qwerty2501.radoc
 
 case class Response(status: Status,
                     headers: Map[String, String],
-                    content: Content) {
+                    content: Content)
+    extends Message {
   def this(status: Status) =
     this(status, Map[String, String](), Content())
 
