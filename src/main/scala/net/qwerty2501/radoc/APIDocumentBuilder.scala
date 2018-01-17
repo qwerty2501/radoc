@@ -61,13 +61,15 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
 
     val groupKey = (req.method, req.path.displayPath)
     val apiDocument = apiDocumentGroup.apiDocuments
-      .getOrElse(groupKey, APIDocument(Seq(), ""))
+      .getOrElse(groupKey, APIDocument(req.method, req.path, Seq(), ""))
 
     if (apiDocument.description != "" && documentArgs.description != "") {
       throw new IllegalStateException("description is already set.")
     }
 
     val newAPIDocument = APIDocument(
+      apiDocument.method,
+      apiDocument.path,
       apiDocument.messageDocuments :+
         MessageDocument(documentArgs.messageName, req, res),
       if (documentArgs.description != "") documentArgs.description

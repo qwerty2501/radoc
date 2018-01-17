@@ -7,6 +7,8 @@ class APIDocumentSpec extends FlatSpec with Matchers {
   "unmatched path documents" should "throw IllegalArgumentException" in {
     intercept[IllegalArgumentException] {
       APIDocument(
+        Method.Get,
+        Path("test/path1"),
         Seq(MessageDocument(Request.get("test/path1"), Response(Status.Ok)),
             MessageDocument(Request.get("test/path2"), Response(Status.Ok))),
         "description"
@@ -17,6 +19,8 @@ class APIDocumentSpec extends FlatSpec with Matchers {
   "unmatched method documents" should "throw IllegalArgumentException" in {
     intercept[IllegalArgumentException] {
       APIDocument(
+        Method.Get,
+        Path("test/path"),
         Seq(MessageDocument(Request.post("test/path", Content()),
                             Response(Status.Ok)),
             MessageDocument(Request.get("test/path"), Response(Status.Ok))),
