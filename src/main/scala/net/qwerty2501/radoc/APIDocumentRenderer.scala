@@ -292,9 +292,7 @@ private object APIDocumentRendererInternal {
             apiCategories.map{apiCategory=>
               apiCategory._2.apiDocumentGroups.map{apiDocumentGroup=>
                 <template id={generateTemplateId(apiCategory._2.category,apiDocumentGroup._2.group)} >
-                  <div>
-                    {apiDocumentGroup._2.group}
-                  </div>
+                      {renderAPIGroupDocument(apiDocumentGroup._2)}
                 </template>
               }
             }
@@ -307,5 +305,45 @@ private object APIDocumentRendererInternal {
 
     }
 
+  }
+
+  def renderAPIGroupDocument(apiDocumentGroup: APIDocumentGroup): Elem = {
+    <div>
+      <h1>{apiDocumentGroup.group}</h1>
+      {apiDocumentGroup.apiDocuments.map { apiDocument =>
+        renderAPIDocument(apiDocument._2)
+      }
+    }
+    </div>
+  }
+
+  def renderAPIDocument(apiDocument: APIDocument): Elem = {
+    <div>
+      <h2><p>{apiDocument.method}</p><p>{apiDocument.path.displayPath}</p></h2>
+      <div>
+        {apiDocument.description}
+      </div>
+      {apiDocument.messageDocuments.map(renderMessageDocument)}
+    </div>
+  }
+
+  def renderMessageDocument(messageDocument: MessageDocument): Elem = {
+
+    <div>
+      <div>{messageDocument.messageName}</div>
+
+      <div>{renderMessage(messageDocument.request)}</div>
+
+      <div>{renderMessage(messageDocument.response)}</div>
+    </div>
+
+  }
+
+  def renderMessage(message: Message): Elem = {
+    <div>{renderContent(message.content)}</div>
+  }
+
+  def renderContent(content: Content): Elem = {
+    <div>{content.toString}</div>
   }
 }
