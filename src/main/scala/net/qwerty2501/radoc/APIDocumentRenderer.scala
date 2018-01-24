@@ -27,6 +27,7 @@ private object APIDocumentRendererInternal {
 
   def render(rootAPIDocument: RootAPIDocument,
              context: APIDocumentRendererContext): String = {
+
     "<!DOCTYPE html>\n" +
       new PrettyPrinter(80, 2)
         .format(renderRootAPIDocument(rootAPIDocument, context))
@@ -39,6 +40,7 @@ private object APIDocumentRendererInternal {
 
   def renderRootAPIDocument(rootAPIDocument: RootAPIDocument,
                             context: APIDocumentRendererContext): Elem = {
+
     <html>
         <head>
           <meta charset="UTF-8"/>
@@ -217,13 +219,50 @@ private object APIDocumentRendererInternal {
           <script type="text/javascript">
             {
               """
-                |function renderContent(targetId,contentId){
-                | var target = document.getElementById(targetId);
+                |function renderContent(mainContentId,contentId){
+                | var target = document.getElementById(mainContentId);
                 | var content = document.importNode(document.getElementById(contentId).content,true);
                 | target.textContent = null;
                 | target.appendChild(content);
                 |}
               """.stripMargin
+            }
+            {Unparsed(
+            """
+              |var getUrlParameter = function getUrlParameter(sParam) {
+              |    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
+              |        sURLVariables = sPageURL.split('&'),
+              |        sParameterName,
+              |        i;
+              |
+              |    for (i = 0; i < sURLVariables.length; i++) {
+              |        sParameterName = sURLVariables[i].split('=');
+              |
+              |        if (sParameterName[0] === sParam) {
+              |            return sParameterName[1] === undefined ? true : sParameterName[1];
+              |        }
+              |    }
+              |};
+            """.stripMargin)
+
+            }
+            {
+              Unparsed(
+              """
+                |
+                |$( document ).ready(function(){
+                | var mainContentId=getUrlParameter('mainContentId');
+                | var contentId=getUrlParameter('contentId');
+                | if (mainContentId != null){
+                |   if (contentId != null){
+                |     renderContent(mainContentId,contentId);
+                |   }
+                | }
+                |});
+                |
+              """.stripMargin)
+
+
             }
           </script>
           <script type="text/javascript">
@@ -253,9 +292,10 @@ private object APIDocumentRendererInternal {
       (categoryId + groupId).hashCode.toString
     def renderGroupHeaders(groups: Seq[String],
                            categoryId: String,
-                           targetId: String): Seq[Elem] = {
+                           mainContentId: String,
+                           version: Version): Seq[Elem] = {
       groups.map { group =>
-        <li class="nav-item" onclick={"renderContent(\"" + targetId + "\",\"" + generateTemplateId(categoryId,group) +  "\")"} ><a href="javascript:void(0)" class="nav-link" ><span >{group}</span></a></li>
+        <li class="nav-item"  ><a href={"?mainContentId=" + mainContentId +"&contentId="+generateTemplateId(categoryId,group) +"&version=" + version.toString + "#test" } class="nav-link" ><span >{group}</span></a></li>
       }
     }
 
@@ -267,7 +307,7 @@ private object APIDocumentRendererInternal {
           <ul class="sidebar-nav">
 
             {if (apiCategories.exists(_._1 == "")) {
-            renderGroupHeaders(apiCategories.head._2.apiDocumentGroups.keys.toSeq,apiCategories.head._1, mainContentId)
+            renderGroupHeaders(apiCategories.head._2.apiDocumentGroups.keys.toSeq,apiCategories.head._1, mainContentId,rootAPIDocumentWithVersion.version)
           }}
           </ul>
           {
