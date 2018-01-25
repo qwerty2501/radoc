@@ -45,7 +45,7 @@ private object APIDocumentRendererInternal {
         <head>
           <meta charset="UTF-8"/>
           <title>{rootAPIDocument.title}</title>
-          <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous"/>
+          <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
           <style>
             {
               """
@@ -214,8 +214,7 @@ private object APIDocumentRendererInternal {
 
           <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
           <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
-          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.bundle.min.js" integrity="sha384-VspmFJ2uqRrKr3en+IG0cIq1Cl/v/PHneDw6SQZYgrcr8ZZmZoQ3zhuGfMnSR/F2" crossorigin="anonymous"></script>
+          <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js" integrity="sha384-feJI7QwhOS+hwpX2zkaeJQjeiwlhOP+SdQDqhgvvo1DsjtiSQByFdThsxO669S2D" crossorigin="anonymous"></script>
           <script type="text/javascript">
             {
               """
@@ -324,7 +323,7 @@ private object APIDocumentRendererInternal {
 
         <div id="page-content-wrapper">
           <div class="container-fluid">
-            <main >
+            <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
               <div id={mainContentId} />
             </main>
 
@@ -349,11 +348,17 @@ private object APIDocumentRendererInternal {
 
   def renderAPIGroupDocument(apiDocumentGroup: APIDocumentGroup): Elem = {
     <div>
-      <h1>{apiDocumentGroup.group}</h1>
-      {apiDocumentGroup.apiDocuments.map { apiDocument =>
-        renderAPIDocument(apiDocument._2)
-      }
-    }
+      <div>
+        <h1 class="bd-title">{apiDocumentGroup.group}</h1>
+      </div>
+      <p>
+        {
+          apiDocumentGroup.apiDocuments.map { apiDocument =>
+            renderAPIDocument(apiDocument._2)
+          }
+        }
+      </p>
+
     </div>
   }
 
@@ -362,7 +367,9 @@ private object APIDocumentRendererInternal {
     <div>
       <h3><p>{apiDocument.method} {apiDocument.path.displayPath}</p></h3>
       <div>
-        {apiDocument.description}
+        <p>
+          {apiDocument.description}
+        </p>
       </div>
       {apiDocument.messageDocuments.map(renderMessageDocument)}
     </div>
