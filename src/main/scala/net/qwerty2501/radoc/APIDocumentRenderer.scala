@@ -358,23 +358,32 @@ private object APIDocumentRendererInternal {
   }
 
   def renderAPIDocument(apiDocument: APIDocument): Elem = {
+    <p>
     <div>
-      <h2><p>{apiDocument.method}</p><p>{apiDocument.path.displayPath}</p></h2>
+      <h3><p>{apiDocument.method} {apiDocument.path.displayPath}</p></h3>
       <div>
         {apiDocument.description}
       </div>
       {apiDocument.messageDocuments.map(renderMessageDocument)}
     </div>
+    </p>
   }
 
   def renderMessageDocument(messageDocument: MessageDocument): Elem = {
 
     <div>
-      <div>{messageDocument.messageName}</div>
+      <div><h2>{messageDocument.messageName}</h2></div>
 
-      <div>{renderMessage(messageDocument.request)}</div>
+      <p>
+        <h3>Request</h3>
+        <div>{renderMessage(messageDocument.request)}</div>
+      </p>
 
-      <div>{renderMessage(messageDocument.response)}</div>
+      <p>
+        <h3>Response</h3>
+        <div>{renderMessage(messageDocument.response)}</div>
+      </p>
+
     </div>
 
   }
