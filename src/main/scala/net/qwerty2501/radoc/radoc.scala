@@ -1,3 +1,5 @@
 package net.qwerty2501
 
-package object radoc {}
+package object radoc {
+  type HeaderMap = Map[String, HeaderParameter]
+}
