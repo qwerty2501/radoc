@@ -9,11 +9,18 @@ class APIDocumentSpec extends FlatSpec with Matchers {
       APIDocument(
         Method.Get,
         URLPath / "test/path1",
-        Seq(MessageDocument(Request.get(URLPath / "test/path1"),
-                            Response(Status.Ok)),
-            MessageDocument(Request.get(URLPath / "test/path2"),
-                            Response(Status.Ok))),
-        Text("description")
+        Map(
+          "v1" -> MessageDocument("v1",
+                                  Request.get(URLPath / "test/path1"),
+                                  Response(Status.Ok)),
+          "v2" -> MessageDocument("v2",
+                                  Request.get(URLPath / "test/path2"),
+                                  Response(Status.Ok))
+        ),
+        Text("description"),
+        "group",
+        "category",
+        Version()
       )
     }
   }
@@ -23,13 +30,19 @@ class APIDocumentSpec extends FlatSpec with Matchers {
       APIDocument(
         Method.Get,
         URLPath / "test/path",
-        Seq(
-          MessageDocument(Request.post(URLPath / "test/path", Content()),
-                          Response(Status.Ok)),
-          MessageDocument(Request.get(URLPath / "test/path"),
-                          Response(Status.Ok))
+        Map(
+          "v1" -> MessageDocument("v1",
+                                  Request.post(URLPath / "test/path",
+                                               Content()),
+                                  Response(Status.Ok)),
+          "v2" -> MessageDocument("v2",
+                                  Request.get(URLPath / "test/path"),
+                                  Response(Status.Ok))
         ),
-        Text("description")
+        Text("description"),
+        "group",
+        "category",
+        Version()
       )
     }
   }
