@@ -323,7 +323,7 @@ private object APIDocumentRendererInternal {
 
         <div id="page-content-wrapper">
           <div class="container-fluid">
-            <main class="col-12 col-md-9 col-xl-8 py-md-3 pl-md-5 bd-content" role="main">
+            <main class="col-14 col-md-14 py-md-3 pl-md-5 bd-content" role="main">
               <div id={mainContentId} />
             </main>
 
@@ -428,7 +428,7 @@ private object APIDocumentRendererInternal {
       if (parameters.nonEmpty) {
         <div>
           <div><h5>{title}</h5></div>
-          <table class="table">
+          <table class="table table-bordered table-striped">
             <thead>
               <tr>
                 <th scope="col">name</th>
@@ -440,10 +440,10 @@ private object APIDocumentRendererInternal {
             {
             parameters.map { parameter =>
               <tr>
-                <td>{parameter.name}</td>
-                <td>{parameter.value.toString}</td>
-                <td>{parameter.typeName}</td>
-                <td>{parameter.description.render(
+                <td class="col-md-2">{parameter.name}</td>
+                <td class="col-md-3" >{parameter.value.toString}</td>
+                <td class="col-md-1" >{parameter.typeName}</td>
+                <td class="col-md-5">{parameter.description.render(
                   TextRenderingArguments(
                     rootAPIDocument,currentAPIDocumentWithVersion,currentCategory,
                     currentGroup,currentAPIDocument,messageDocument,context
