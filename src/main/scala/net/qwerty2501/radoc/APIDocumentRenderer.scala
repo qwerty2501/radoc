@@ -427,12 +427,13 @@ private object APIDocumentRendererInternal {
     def renderParameters(title: String, parameters: Seq[Parameter]): Node = {
       if (parameters.nonEmpty) {
         <div>
-          <div><h3>{title}</h3></div>
+          <div><h5>{title}</h5></div>
           <table class="table">
             <thead>
               <tr>
                 <th scope="col">name</th>
                 <th scope="col">value</th>
+                <th scope="col">type</th>
                 <th scope="col">description</th>
               </tr>
             </thead>
@@ -462,10 +463,10 @@ private object APIDocumentRendererInternal {
       <div><h2>{messageDocument.messageName}</h2></div>
 
       <p>
-        <h3>Request</h3>
-        <div>{messageDocument.request.path.actualPath}</div>
-        {renderParameters("Path parameters",messageDocument.request.path.pathParameters)}
-        {renderParameters("Queries",messageDocument.request.path.queries)}
+        <p><h3>Request</h3></p>
+        <p>{messageDocument.request.path.actualPath}</p>
+        <p>{renderParameters("Path parameters",messageDocument.request.path.pathParameters)}</p>
+        <p>{renderParameters("Queries",messageDocument.request.path.queries)}</p>
         <div>{renderMessage(messageDocument.request)}</div>
       </p>
 
