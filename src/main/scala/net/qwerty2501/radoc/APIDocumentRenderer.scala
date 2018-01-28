@@ -389,18 +389,83 @@ private object APIDocumentRendererInternal {
           context))}
         </p>
       </div>
-      {apiDocument.messageDocuments.map(renderMessageDocument)}
+      {apiDocument.messageDocuments.map(messageDocument =>
+        renderMessageDocument(messageDocument,apiDocument,currentGroup,currentCategory,currentAPIDocumentWithVersion,rootAPIDocument,context))
+      }
     </div>
     </p>
   }
 
-  def renderMessageDocument(messageDocument: MessageDocument): Elem = {
+  def renderMessageDocument(
+      messageDocument: MessageDocument,
+      currentAPIDocument: APIDocument,
+      currentGroup: APIDocumentGroup,
+      currentCategory: APIDocumentCategory,
+      currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
+      rootAPIDocument: RootAPIDocument,
+      context: APIDocumentRendererContext): Elem = {
+
+    def renderMessage(message: Message): Elem = {
+      <div>
+        <div>
+          {
+            renderParameters("Headers", message.headers.map{arg=>
+            val name = arg._1
+            val param = arg._2
+            Parameter(name,param.value,param.typeName,param.description)}.toSeq)
+          }
+        </div>
+        <div>{renderContent(message.content)}</div>
+      </div>
+
+    }
+
+    def renderContent(content: Content): Elem = {
+      <div>{content.toString}</div>
+    }
+
+    def renderParameters(title: String, parameters: Seq[Parameter]): Node = {
+      if (parameters.nonEmpty) {
+        <div>
+          <div><h3>{title}</h3></div>
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">name</th>
+                <th scope="col">value</th>
+                <th scope="col">description</th>
+              </tr>
+            </thead>
+            {
+            parameters.map { parameter =>
+              <tr>
+                <td>{parameter.name}</td>
+                <td>{parameter.value.toString}</td>
+                <td>{parameter.typeName}</td>
+                <td>{parameter.description.render(
+                  TextRenderingArguments(
+                    rootAPIDocument,currentAPIDocumentWithVersion,currentCategory,
+                    currentGroup,currentAPIDocument,messageDocument,context
+                  ))}
+                </td>
+              </tr>
+            }
+            }
+          </table>
+        </div>
+
+      } else xml.Text("")
+
+    }
 
     <div>
       <div><h2>{messageDocument.messageName}</h2></div>
 
       <p>
         <h3>Request</h3>
+        <div>{messageDocument.request.path.actualPath}</div>
+        {renderParameters("Path parameters",messageDocument.request.path.pathParameters)}
+        {renderParameters("Queries",messageDocument.request.path.queries)}
         <div>{renderMessage(messageDocument.request)}</div>
       </p>
 
@@ -413,11 +478,4 @@ private object APIDocumentRendererInternal {
 
   }
 
-  def renderMessage(message: Message): Elem = {
-    <div>{renderContent(message.content)}</div>
-  }
-
-  def renderContent(content: Content): Elem = {
-    <div>{content.toString}</div>
-  }
 }
