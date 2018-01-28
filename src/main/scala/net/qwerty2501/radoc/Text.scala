@@ -17,6 +17,7 @@ private case class CustomText(handler: (TextRenderingArguments) => Node)
 }
 
 object Text {
+  def apply(): Text = apply("")
   def apply(text: String): Text = NodeText(xml.Text(text))
   def apply(node: Node): Text = NodeText(node)
   def apply(handler: (TextRenderingArguments) => Node): Text =

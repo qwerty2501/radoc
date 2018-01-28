@@ -14,33 +14,33 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
     res
   }
 
-  def request(req: Request, category: String, description: String): Response =
+  def request(req: Request, category: String, description: Text): Response =
     request(req, category, description, Version())
   def request(req: Request,
               category: String,
-              description: String,
+              description: Text,
               version: Version): Response =
     request(req, DocumentArgs(category, description, version))
 
-  def request(req: Request, description: String): Response =
+  def request(req: Request, description: Text): Response =
     request(req, "", description)
 
-  def request(req: Request): Response = request(req, "")
+  def request(req: Request): Response = request(req, Text())
 
   def append(req: Request, res: Response): Unit =
-    append(req, res, "")
-  def append(req: Request, res: Response, description: String): Unit =
+    append(req, res, Text())
+  def append(req: Request, res: Response, description: Text): Unit =
     append(req, res, "", description)
 
   def append(req: Request,
              res: Response,
              category: String,
-             description: String): Unit =
+             description: Text): Unit =
     append(req, res, category, description, Version())
   def append(req: Request,
              res: Response,
              category: String,
-             description: String,
+             description: Text,
              version: Version): Unit =
     append(req, res, DocumentArgs(category, description, version))
 
@@ -48,8 +48,9 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
     val apiGroup =
       if (documentArgs.group == "") req.path.displayPath else documentArgs.group
 
-
-    val messageName ="[%d %s]%s".format(res.status.code,res.status.toString,documentArgs.messageName)
+    val messageName = "[%d %s]%s".format(res.status.code,
+                                         res.status.toString,
+                                         documentArgs.messageName)
     val rootAPIDocumentWithVersion = rootAPIDocument.documents
       .getOrElse(documentArgs.version,
                  RootAPIDocumentWithVersion(documentArgs.version, Map()))
@@ -63,9 +64,9 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
 
     val groupKey = (req.method, req.path.displayPath)
     val apiDocument = apiDocumentGroup.apiDocuments
-      .getOrElse(groupKey, APIDocument(req.method, req.path, Seq(), ""))
+      .getOrElse(groupKey, APIDocument(req.method, req.path, Seq(), Text()))
 
-    if (apiDocument.description != "" && documentArgs.description != "") {
+    if (apiDocument.description != Text() && documentArgs.description != Text()) {
       throw new IllegalStateException("description is already set.")
     }
 
@@ -74,7 +75,7 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
       apiDocument.path,
       apiDocument.messageDocuments :+
         MessageDocument(messageName, req, res),
-      if (documentArgs.description != "") documentArgs.description
+      if (documentArgs.description != Text()) documentArgs.description
       else apiDocument.description
     )
 

@@ -11,7 +11,7 @@ class APIDocumentSpec extends FlatSpec with Matchers {
         Path("test/path1"),
         Seq(MessageDocument(Request.get("test/path1"), Response(Status.Ok)),
             MessageDocument(Request.get("test/path2"), Response(Status.Ok))),
-        "description"
+        Text("description")
       )
     }
   }
@@ -24,7 +24,7 @@ class APIDocumentSpec extends FlatSpec with Matchers {
         Seq(MessageDocument(Request.post("test/path", Content()),
                             Response(Status.Ok)),
             MessageDocument(Request.get("test/path"), Response(Status.Ok))),
-        "description"
+        Text("description")
       )
     }
   }

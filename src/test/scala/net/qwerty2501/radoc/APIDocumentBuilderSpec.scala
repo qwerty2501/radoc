@@ -15,7 +15,7 @@ class APIDocumentBuilderSpec extends FlatSpec with Matchers {
       .apiCategories("")
       .apiDocumentGroups(path)
       .apiDocuments(Method.Get, path)
-    apiDocument.description should be("")
+    apiDocument.description should be(Text())
 
     val messageDocument = apiDocument.messageDocuments.head
 
@@ -27,7 +27,7 @@ class APIDocumentBuilderSpec extends FlatSpec with Matchers {
   it should "can add request response and description" in {
     val apiDocumentBuilder = new APIDocumentBuilderMock()
     val path = "test/path"
-    val description = "description"
+    val description = Text("description")
     val response = apiDocumentBuilder.request(Request.get(path), description)
 
     val apiDocument = apiDocumentBuilder.getRootAPIDocument
@@ -46,7 +46,7 @@ class APIDocumentBuilderSpec extends FlatSpec with Matchers {
   it should "can not add description twice to same api document" in {
     val apiDocumentBuilder = new APIDocumentBuilderMock()
     val path = "test/path"
-    val description = "description"
+    val description = Text("description")
 
     intercept[IllegalStateException] {
       apiDocumentBuilder.request(Request.get(path), description)

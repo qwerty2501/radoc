@@ -3,7 +3,7 @@ package net.qwerty2501.radoc
 case class APIDocument(method: Method,
                        path: Path,
                        messageDocuments: Seq[MessageDocument],
-                       description: String) {
+                       description: Text) {
   if (!checkRequestResponses(method, path, messageDocuments)) {
     throw new IllegalArgumentException(
       "messageDocuments should be same method and paths.")
