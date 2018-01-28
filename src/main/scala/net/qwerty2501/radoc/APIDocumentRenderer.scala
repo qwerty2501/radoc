@@ -285,16 +285,18 @@ private object APIDocumentRendererInternal {
       context: APIDocumentRendererContext): Elem = {
 
     val apiCategories = rootAPIDocumentWithVersion.apiCategories
-    val mainContentId = "main-content-" + rootAPIDocumentWithVersion.version.toString.hashCode
+    val mainContentId =
+      InternalLink.mainContentId(rootAPIDocumentWithVersion.version)
 
     def generateTemplateId(categoryId: String, groupId: String) =
       (categoryId + groupId).hashCode.toString
-    def renderGroupHeaders(groups: Seq[String],
+    def renderGroupHeaders(groups: Seq[APIDocumentGroup],
                            categoryId: String,
                            mainContentId: String,
                            version: Version): Seq[Elem] = {
       groups.map { group =>
-        <li class="nav-item"  ><a href={"?mainContentId=" + mainContentId +"&contentId="+generateTemplateId(categoryId,group) +"&version=" + version.toString + "#test" } class="nav-link" ><span >{group}</span></a></li>
+        <li class="nav-item"  ><a href={Link.href(group) } class="nav-link" ><span >{group.group}</span></a></li>
+
       }
     }
 
@@ -306,7 +308,7 @@ private object APIDocumentRendererInternal {
           <ul class="sidebar-nav">
 
             {if (apiCategories.exists(_._1 == "")) {
-            renderGroupHeaders(apiCategories.head._2.apiDocumentGroups.keys.toSeq,apiCategories.head._1, mainContentId,rootAPIDocumentWithVersion.version)
+            renderGroupHeaders(apiCategories.head._2.apiDocumentGroups.values.toSeq,apiCategories.head._1, mainContentId,rootAPIDocumentWithVersion.version)
           }}
           </ul>
           {
@@ -330,7 +332,7 @@ private object APIDocumentRendererInternal {
             {
             apiCategories.map{apiCategory=>
               apiCategory._2.apiDocumentGroups.map{apiDocumentGroup=>
-                <template id={generateTemplateId(apiCategory._2.category,apiDocumentGroup._2.group)} >
+                <template id={ InternalLink.templateId(apiCategory._2.category,apiDocumentGroup._2.group) } >
                       {renderAPIGroupDocument(apiDocumentGroup._2,apiCategory._2,rootAPIDocumentWithVersion,rootAPIDocument,context)}
                 </template>
               }
@@ -385,12 +387,12 @@ private object APIDocumentRendererInternal {
           currentCategory,
           currentGroup,
           apiDocument,
-          apiDocument.messageDocuments.head,
+          apiDocument.messageDocumentMap.head._2,
           context))}
         </p>
       </div>
-      {apiDocument.messageDocuments.map(messageDocument =>
-        renderMessageDocument(messageDocument,apiDocument,currentGroup,currentCategory,currentAPIDocumentWithVersion,rootAPIDocument,context))
+      {apiDocument.messageDocumentMap.map(messageDocumentT =>
+        renderMessageDocument(messageDocumentT._2,apiDocument,currentGroup,currentCategory,currentAPIDocumentWithVersion,rootAPIDocument,context))
       }
     </div>
     </p>
