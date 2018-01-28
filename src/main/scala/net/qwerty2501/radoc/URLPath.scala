@@ -25,10 +25,11 @@ case class PathOfURLPath(override val displayPath: String,
                   this.pathParameters :+ parameterPath)
 
   def :?(queryParameter: Parameter): QueriesOfURLPath =
-    QueriesOfURLPath(this.displayPath,
-                     this.actualPath,
-                     this.pathParameters,
-                     this.queries :+ queryParameter)
+    QueriesOfURLPath(
+      this.displayPath,
+      this.actualPath + "?" + queryParameter.name + "=" + queryParameter.value.toString,
+      this.pathParameters,
+      this.queries :+ queryParameter)
 }
 
 case class QueriesOfURLPath(override val displayPath: String,
@@ -37,10 +38,11 @@ case class QueriesOfURLPath(override val displayPath: String,
                             override val queries: Seq[Parameter])
     extends URLPath {
   def &(queryParameter: Parameter): QueriesOfURLPath =
-    QueriesOfURLPath(this.displayPath,
-                     this.actualPath,
-                     this.pathParameters,
-                     this.queries :+ queryParameter)
+    QueriesOfURLPath(
+      this.displayPath,
+      this.actualPath + "&" + queryParameter.name + "=" + queryParameter.value.toString,
+      this.pathParameters,
+      this.queries :+ queryParameter)
 }
 
 object URLPath {

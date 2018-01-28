@@ -7,13 +7,13 @@ class URLPathSpec extends FlatSpec with Matchers {
   it should "parameter path" in {
     val parameter = Parameter("id", 33, Text("id description"))
     val queryParameter =
-      Parameter("name", "test name", Text("name description"))
+      Parameter("name", "value", Text("name description"))
     val queryParameter2 =
-      Parameter("name2", "test name", Text("name description"))
+      Parameter("name2", "value2", Text("name description"))
     val urlPath = URLPath / "test/path" / parameter :? queryParameter & queryParameter2
 
     urlPath.displayPath should be("/test/path/:id")
-    urlPath.actualPath should be("/test/path/33")
+    urlPath.actualPath should be("/test/path/33?name=value&name2=value2")
     urlPath.pathParameters should be(Seq(parameter))
 
     urlPath.queries.length should be(2)
