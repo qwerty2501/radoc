@@ -44,6 +44,8 @@ case class QueriesOfURLPath(override val displayPath: String,
 }
 
 object URLPath {
+
+  def apply(path: String): PathOfURLPath = PathOfURLPath(path, path, Nil)
   def /(path: String): PathOfURLPath = PathOfURLPath("", "", Nil) / path
 
   def /(pathParameter: Parameter): PathOfURLPath =
