@@ -176,36 +176,38 @@ private object APIDocumentRendererInternal {
         </head>
 
         <body>
-          <nav class="navbar navbar-dark bg-dark">
+          <nav class="navbar navbar-dark bg-dark sticky-top"  >
 
+              <button class="navbar-toggler float-sm-left " id="menu-toggle">
+                <span class="navbar-toggler-icon "></span>
+              </button>
 
-          <button class="navbar-toggler float-sm-left " id="menu-toggle">
-            <span class="navbar-toggler-icon "></span>
-          </button>
+              <a class="navbar-brand mx-auto" href="#">
+                {rootAPIDocument.title}
+              </a>{if (rootAPIDocument.documents.size > 1) {
+              <select class="span2 navbar-btn float-sm-right">
+                {rootAPIDocument.documents.map { doc =>
+                <option value={doc._1.toString}>
+                  {doc._1.toString}
+                </option>
+              }}
 
-          <a class="navbar-brand mx-auto" href="#">
-            {rootAPIDocument.title}
-          </a>{if (rootAPIDocument.documents.size > 1) {
-            <select class="span2 navbar-btn float-sm-right">
-              {rootAPIDocument.documents.map { doc =>
-              <option value={doc._1.toString}>
-                {doc._1.toString}
-              </option>
-            }}
+                </select>
 
-            </select>
-
-          }}
-
+              }}
         </nav>
 
-        {
-          if (rootAPIDocument.documents.size == 1) {
-            renderRootAPIDocumentWithVersion(rootAPIDocument.documents.head._2,rootAPIDocument, context)
-          } else if (rootAPIDocument.documents.size > 1) {
 
-          }
-        }
+          <div class="container-fluid" >
+            {
+            if (rootAPIDocument.documents.size == 1) {
+              renderRootAPIDocumentWithVersion(rootAPIDocument.documents.head._2,rootAPIDocument, context)
+            } else if (rootAPIDocument.documents.size > 1) {
+
+            }
+            }
+          </div>
+
 
 
 
@@ -415,7 +417,9 @@ private object APIDocumentRendererInternal {
             Parameter(name,param.value,param.typeName,param.description)}.toSeq)
           }
         </div>
-        <div>{renderContent(message.content)}</div>
+        <pre>
+          {renderContent(message.content)}
+        </pre>
       </div>
 
     }
@@ -428,7 +432,7 @@ private object APIDocumentRendererInternal {
       if (parameters.nonEmpty) {
         <div>
           <div ><h5>{title}</h5></div>
-          <table class="table table-sm table-bordered">
+          <table class="table table-sm table-striped table-bordered">
             <thead class="thead-inverse">
               <tr>
                 <th scope="col" >name</th>
@@ -440,10 +444,10 @@ private object APIDocumentRendererInternal {
             {
             parameters.map { parameter =>
               <tr >
-                <td scope="row">{parameter.name}</td>
-                <td  >{parameter.value.toString}</td>
-                <td >{parameter.typeName}</td>
-                <td >{parameter.description.render(
+                <td scope="row" style="width:15%;">{parameter.name}</td>
+                <td style="width:35%;" >{parameter.value.toString}</td>
+                <td style="width:15%;" >{parameter.typeName}</td>
+                <td style="width:35%;" >{parameter.description.render(
                   TextRenderingArguments(
                     rootAPIDocument,currentAPIDocumentWithVersion,currentCategory,
                     currentGroup,currentAPIDocument,messageDocument,context
