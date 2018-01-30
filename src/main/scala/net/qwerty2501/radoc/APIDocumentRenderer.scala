@@ -177,6 +177,7 @@ private object APIDocumentRendererInternal {
         </head>
 
         <body>
+
           <nav class="navbar navbar-dark bg-dark sticky-top"  >
 
               <button class="navbar-toggler float-sm-left " id="menu-toggle">
@@ -197,6 +198,7 @@ private object APIDocumentRendererInternal {
 
               }}
         </nav>
+
 
 
           <div class="container-fluid" >
@@ -381,16 +383,16 @@ private object APIDocumentRendererInternal {
     <div >
 
       <p>
-        <kbd class={apiDocument.method match{
-          case Method.Get=>"bg-success"
-          case Method.Post => "bg-primary"
-          case Method.Put => "bg-warning"
-          case Method.Delete => "bg-danger"
-          case _ =>"bg-secondary"
-        }}> <span class="font-weight-bold" >{apiDocument.method}</span></kbd>
+        <div class={"badge p-2  " + (apiDocument.method match{
+          case Method.Get=>"badge-success"
+          case Method.Post => "badge-primary"
+          case Method.Put => "badge-warning"
+          case Method.Delete => "badge-danger"
+          case _ =>"badge-default"
+        } ) } ><span class="font-weight-bold text-white"  style="font-size:16px;" >{apiDocument.method}</span></div>
       </p>
       <p>
-        <kbd><span class="font-weight-bold" >{apiDocument.path.displayPath}</span></kbd>
+        <div class="bg-dark badge p-2 "><span class="font-weight-bold text-white" style="font-size:20px;"    >{apiDocument.path.displayPath}</span></div>
       </p>
       <div>
         <p>
