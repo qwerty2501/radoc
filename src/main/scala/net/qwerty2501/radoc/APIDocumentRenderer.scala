@@ -406,10 +406,21 @@ private object APIDocumentRendererInternal {
           context))}
         </p>
       </div>
-      {apiDocument.messageDocumentMap.map(messageDocumentT =>
-        renderMessageDocument(messageDocumentT._2,apiDocument,currentGroup,currentCategory,currentAPIDocumentWithVersion,rootAPIDocument,context))
-      }
+
+
+      <ul class="nav nav-tabs">
+        {apiDocument.messageDocumentMap.values.map(messageDocument =>
+          <li class="nav-item "  ><a class={"nav-link" + (if(messageDocument == apiDocument.messageDocumentMap.values.head)" active" else "")} data-toggle="tab" href={"#" + tabId(apiDocument,messageDocument) }>{messageDocument.messageName}</a></li>)
+        }
+      </ul>
+      <div class="tab-content">
+        {apiDocument.messageDocumentMap.values.map(messageDocument =>
+          renderMessageDocument(messageDocument,apiDocument,currentGroup,currentCategory,currentAPIDocumentWithVersion,rootAPIDocument,context))
+        }
+      </div>
+
     </div>
+
     </p>
   }
 
@@ -479,9 +490,7 @@ private object APIDocumentRendererInternal {
 
     }
 
-    <div>
-      <div><h2>{messageDocument.messageName}</h2></div>
-
+    <div id={tabId(currentAPIDocument,messageDocument)} class={"tab-pane" + (if (messageDocument == currentAPIDocument.messageDocumentMap.values.head)" active" else "") } >
       <p>
         <p><h3>Request</h3></p>
         <p>{messageDocument.request.path.actualPath}</p>
@@ -497,6 +506,10 @@ private object APIDocumentRendererInternal {
 
     </div>
 
+  }
+
+  private def tabId(apiDocument:APIDocument, messageDocument: MessageDocument):String ={
+      InternalLink.fragmentId(apiDocument) + messageDocument.messageName.hashCode
   }
 
 }
