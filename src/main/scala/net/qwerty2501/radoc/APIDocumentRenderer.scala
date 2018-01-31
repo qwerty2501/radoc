@@ -363,7 +363,7 @@ private object APIDocumentRendererInternal {
       </div>
       <p>
         {
-          apiDocumentGroup.apiDocuments.map { apiDocument =>
+          apiDocumentGroup.apiDocuments.toSeq.sortBy(t=>Method.priority(t._1._1)).map { apiDocument =>
             renderAPIDocument(apiDocument._2,apiDocumentGroup,currentCategory,currentAPIDocumentWithVersion,rootAPIDocument,context)
           }
         }
@@ -408,7 +408,7 @@ private object APIDocumentRendererInternal {
       </div>
 
 
-      <ul class="nav nav-tabs">
+      <ul class="nav nav-pills">
         {apiDocument.messageDocumentMap.values.map(messageDocument =>
           <li class="nav-item "  ><a class={"nav-link" + (if(messageDocument == apiDocument.messageDocumentMap.values.head)" active" else "")} data-toggle="tab" href={"#" + tabId(apiDocument,messageDocument) }>{messageDocument.messageName}</a></li>)
         }

@@ -35,4 +35,16 @@ object Method {
     case "OPTIONS" => Options
     case _         => new Method(name)
   }
+  def priority(method: Method): Int = method match {
+    case Get     => 0
+    case Post    => 1
+    case Put     => 2
+    case Delete  => 3
+    case Head    => 4
+    case Patch   => 5
+    case Trace   => 6
+    case Connect => 7
+    case Options => 8
+    case _       => 9
+  }
 }
