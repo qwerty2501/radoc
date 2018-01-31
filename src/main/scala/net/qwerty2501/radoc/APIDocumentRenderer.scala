@@ -492,10 +492,10 @@ private object APIDocumentRendererInternal {
 
     <div id={tabId(currentAPIDocument,messageDocument)} class={"tab-pane" + (if (messageDocument == currentAPIDocument.messageDocumentMap.values.head)" active" else "") } >
       <p>
-        <p><h3>Request</h3></p>
-        <p>{messageDocument.request.path.actualPath}</p>
-        <p>{renderParameters("Path parameters",messageDocument.request.path.pathParameters)}</p>
-        <p>{renderParameters("Queries",messageDocument.request.path.queries)}</p>
+        <h3>Request</h3>
+        {messageDocument.request.path.actualPath}
+        {renderParameters("Path parameters",messageDocument.request.path.pathParameters)}
+        {renderParameters("Queries",messageDocument.request.path.queries)}
         <div>{renderMessage(messageDocument.request)}</div>
       </p>
 
@@ -508,8 +508,9 @@ private object APIDocumentRendererInternal {
 
   }
 
-  private def tabId(apiDocument:APIDocument, messageDocument: MessageDocument):String ={
-      InternalLink.fragmentId(apiDocument) + messageDocument.messageName.hashCode
+  private def tabId(apiDocument: APIDocument,
+                    messageDocument: MessageDocument): String = {
+    InternalLink.fragmentId(apiDocument) + messageDocument.messageName.hashCode
   }
 
 }
