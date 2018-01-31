@@ -379,6 +379,7 @@ private object APIDocumentRendererInternal {
       currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
       rootAPIDocument: RootAPIDocument,
       context: APIDocumentRendererContext): Elem = {
+
     <p>
     <div >
 
@@ -420,8 +421,10 @@ private object APIDocumentRendererInternal {
       </div>
 
     </div>
-
+    <br/>
+    <br/>
     </p>
+
   }
 
   def renderMessageDocument(
@@ -433,7 +436,7 @@ private object APIDocumentRendererInternal {
       rootAPIDocument: RootAPIDocument,
       context: APIDocumentRendererContext): Elem = {
 
-    def renderMessage(message: Message): Elem = {
+    def renderMessage(message: Message, contentId: String): Elem = {
       <div>
         <div>
           {
@@ -443,15 +446,32 @@ private object APIDocumentRendererInternal {
             Parameter(name,param.value,param.typeName,param.description)}.toSeq)
           }
         </div>
-        <pre>
-          {renderContent(message.content)}
-        </pre>
+
+        {renderContent(message.content,contentId)}
+
       </div>
 
     }
 
-    def renderContent(content: Content): Elem = {
-      <div>{content.toString}</div>
+    def renderContent(content: Content, contentId: String): Node = {
+      if (content != Content()) {
+        <div>
+
+          <button type="button" class="btn btn-info" data-toggle="collapse" data-target={"#"+contentId}>expand example content</button>
+          <div id={contentId} class="collapse">
+            <pre class="bg-dark">
+              <code>
+                {content.toString}
+              </code>
+            </pre>
+
+          </div>
+        </div>
+
+      } else {
+        xml.Text("")
+      }
+
     }
 
     def renderParameters(title: String, parameters: Seq[Parameter]): Node = {
@@ -489,19 +509,19 @@ private object APIDocumentRendererInternal {
       } else xml.Text("")
 
     }
-
-    <div id={tabId(currentAPIDocument,messageDocument)} class={"tab-pane" + (if (messageDocument == currentAPIDocument.messageDocumentMap.values.head)" active" else "") } >
+    val ti = tabId(currentAPIDocument, messageDocument)
+    <div id={ti} class={"tab-pane" + (if (messageDocument == currentAPIDocument.messageDocumentMap.values.head)" active" else "") } >
       <p>
         <h3>Request</h3>
         {messageDocument.request.path.actualPath}
         {renderParameters("Path parameters",messageDocument.request.path.pathParameters)}
         {renderParameters("Queries",messageDocument.request.path.queries)}
-        <div>{renderMessage(messageDocument.request)}</div>
+        <div>{renderMessage(messageDocument.request,"request-content-" + ti)}</div>
       </p>
 
       <p>
         <h3>Response</h3>
-        <div>{renderMessage(messageDocument.response)}</div>
+        <div>{renderMessage(messageDocument.response,"response-content-"+ ti)}</div>
       </p>
 
     </div>
