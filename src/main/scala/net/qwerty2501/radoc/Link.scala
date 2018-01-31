@@ -21,13 +21,8 @@ object Link {
       .templateId(category, group) + "&version=" + version.toString
   }
 
-  private def fragment(apiDocument: APIDocument): String = {
-    val group = apiDocument.group
-    val category = apiDocument.category
-    val version = apiDocument.version
-    version.hashCode + category.hashCode.toString + group.toString +
-      apiDocument.method.name.hashCode.toString + apiDocument.path.displayPath.hashCode.toString
-  }
+  def fragment(apiDocument: APIDocument):String ="#" +InternalLink.fragmentId(apiDocument)
+
 
 }
 
@@ -37,4 +32,14 @@ private object InternalLink {
 
   def templateId(category: String, group: String): String =
     category.hashCode.toString + group.hashCode.toString
+
+   def fragmentId(apiDocument: APIDocument): String = {
+    val group = apiDocument.group
+    val category = apiDocument.category
+    val version = apiDocument.version
+    version.hashCode + category.hashCode.toString + group.hashCode.toString +
+      apiDocument.method.name.hashCode.toString + apiDocument.path.displayPath.hashCode.toString
+  }
+
+
 }
