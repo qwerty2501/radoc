@@ -48,9 +48,6 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
     val apiGroup =
       if (documentArgs.group == "") req.path.displayPath else documentArgs.group
 
-    val messageName = "[%d %s]%s".format(res.status.code,
-                                         res.status.toString,
-                                         documentArgs.messageName)
     val rootAPIDocumentWithVersion = rootAPIDocument.documents
       .getOrElse(documentArgs.version,
                  RootAPIDocumentWithVersion(documentArgs.version, Map()))
@@ -80,6 +77,11 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
     if (apiDocument.description != Text() && documentArgs.description != Text()) {
       throw new IllegalStateException("description is already set.")
     }
+
+    val messageName = generateMessageName(
+      apiDocument.messageDocumentMap,
+      "[%d %s]%s"
+        .format(res.status.code, res.status.toString, documentArgs.messageName))
 
     val newAPIDocument = APIDocument(
       apiDocument.method,
@@ -124,4 +126,19 @@ class APIDocumentBuilder(private val apiClient: APIClient) {
     rootAPIDocument = RootAPIDocument(rootAPIDocument.title,
                                       newRootAPIDocumentWithVersions.toMap)
   }
+
+  private def generateMessageName(
+      messageDocumentMap: Map[String, MessageDocument],
+      messageName: String): String =
+    if (messageDocumentMap.keys.exists(_ == messageName))
+      generateNewMessageName(messageDocumentMap, messageName, 2)
+    else messageName
+
+  private def generateNewMessageName(
+      messageDocumentMap: Map[String, MessageDocument],
+      messageName: String,
+      number: Int): String =
+    if (messageDocumentMap.keys.exists(_ == messageName + "-" + number))
+      generateNewMessageName(messageDocumentMap, messageName, number + 1)
+    else messageName + "-" + number
 }
