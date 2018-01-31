@@ -54,6 +54,24 @@ class APIDocumentBuilderSpec extends FlatSpec with Matchers {
     }
   }
 
+  it should "can add message document with same message name. But append with numbers." in {
+    val apiDocumentBuilder = new APIDocumentBuilderMock()
+    val path = URLPath / "test/path"
+
+    apiDocumentBuilder.request(Request.get(path))
+    apiDocumentBuilder.request(Request.get(path))
+
+    val rootAPIDocument = apiDocumentBuilder.getRootAPIDocument
+
+    val apiDocument =
+      rootAPIDocument.documents.values.head.apiCategories.values.head.apiDocumentGroups.values.head.apiDocuments.values.head
+
+    apiDocument.messageDocumentMap.size should be(2)
+    apiDocument.messageDocumentMap.keys.exists(_ == "[200 OK]") should be(true)
+    apiDocument.messageDocumentMap.keys.exists(_ == "[200 OK]-2") should be(
+      true)
+  }
+
   it should "can add same path request but difference method" in {
 
     val apiDocumentBuilder = new APIDocumentBuilderMock()
