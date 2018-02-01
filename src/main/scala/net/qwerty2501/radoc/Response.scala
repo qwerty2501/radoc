@@ -1,6 +1,6 @@
 package net.qwerty2501.radoc
 
-case class Response(status: Status, headers: HeaderMap, content: Content)
+case class Response(status: Status, headerMap: HeaderMap, content: Content)
     extends Message {
   def this(status: Status) =
     this(status, Map[String, HeaderParameter](), Content())

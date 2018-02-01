@@ -23,11 +23,10 @@ var getUrlParameter = function getUrlParameter(sParam) {
 $( document ).ready(function(){
  var mainContentId=getUrlParameter('mainContentId');
  var contentId=getUrlParameter('contentId');
- if (mainContentId != null){
-   if (contentId != null){
+ if (mainContentId != null && contentId != null){
      renderContent(mainContentId,contentId);
-   }
  }
+ hljs.initHighlightingOnLoad();
 });
 
 $('#menu-toggle').click(function(e) {

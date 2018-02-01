@@ -29,6 +29,8 @@ private object APIDocumentHtmlRenderer {
         <title>{rootAPIDocument.title}</title>
         {renderCss("bootstrap.min.css")}
         {renderCss("simple-sidebar.css")}
+        { renderCss("highlight.default.min.css")}
+        {renderJavaScript("highlight.pack.js")}
 
       </head>
 
@@ -68,6 +70,7 @@ private object APIDocumentHtmlRenderer {
         </div>
         {renderJavaScript("jquery-3.3.1.slim.min.js")}
         {renderJavaScript("bootstrap.bundle.min.js")}
+
         {renderJavaScript("ui.js")}
       </body>
     </html>
@@ -113,6 +116,7 @@ private object APIDocumentHtmlRenderer {
               </ul>
           }
           }
+
 
 
         </div>
@@ -229,31 +233,26 @@ private object APIDocumentHtmlRenderer {
       <div>
         <div>
           {
-          renderParameters("Headers", message.headers.map{arg=>
+          renderParameters("Headers", message.headerMap.map{ arg=>
             val name = arg._1
             val param = arg._2
             Parameter(name,param.value,param.typeName,param.description)}.toSeq)
           }
         </div>
 
-        {renderContent(message.content,contentId)}
+        {renderContent(message,contentId)}
 
       </div>
 
     }
 
-    def renderContent(content: Content, contentId: String): Node = {
-      if (content != Content()) {
+    def renderContent(message: Message, contentId: String): Node = {
+      if (message.content != Content()) {
         <div>
 
           <button type="button" class="btn btn-info" data-toggle="collapse" data-target={"#"+contentId}>expand example content</button>
           <div id={contentId} class="collapse">
-            <pre class="bg-dark">
-              <code>
-                {content.toString}
-              </code>
-            </pre>
-
+            <pre><br/><code class="json">{message.content.renderHtml(ContentType(message.headerMap))}</code><br/></pre>
           </div>
         </div>
 
@@ -317,12 +316,12 @@ private object APIDocumentHtmlRenderer {
 
   private def renderCss(fileName: String): Node = {
     val path = "assets/css/" + fileName
-    <style>{ResourceLoader.loadCss(fileName)}</style>
+    <style>{Unparsed(ResourceLoader.loadCss(fileName))}</style>
   }
 
   private def renderJavaScript(fileName: String): Node = {
     val path = "assets/js/" + fileName
-    <script type="text/javascript">{ResourceLoader.loadJavaScript(fileName)}</script>
+    <script type="text/javascript">{Unparsed(ResourceLoader.loadJavaScript(fileName).replace("</script>","\\u003c\\u002f\\u0073\\u0063\\u0072\\u0069\\u0070\\u0074\\u003e"))}</script>
   }
 
   private[radoc] def tabId(apiDocument: APIDocument,

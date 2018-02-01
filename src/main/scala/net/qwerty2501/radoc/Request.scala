@@ -2,7 +2,7 @@ package net.qwerty2501.radoc
 
 case class Request(method: Method,
                    path: URLPath,
-                   headers: HeaderMap,
+                   headerMap: HeaderMap,
                    content: Content)
     extends Message {
 

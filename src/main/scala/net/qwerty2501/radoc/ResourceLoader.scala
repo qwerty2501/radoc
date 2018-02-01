@@ -11,21 +11,19 @@ private object ResourceLoader {
 
   private def assets = "assets"
 
-  def loadCss(fileName: String): Node =
-    loadTextAsNode(assets + "/css/" + fileName)
+  def loadCss(fileName: String): String =
+    loadText(assets + "/css/" + fileName)
 
-  def loadJavaScript(fileName: String): Node =
-    loadTextAsNode(assets + "/js/" + fileName)
-
-  private def loadTextAsNode(path: String): Node = Unparsed(loadText(path))
+  def loadJavaScript(fileName: String): String =
+    loadText(assets + "/js/" + fileName)
 
   private def loadText(path: String): String = load(path).getLines.mkString
 
   private def load(path: String): BufferedSource = {
 
     val targetPath = basePath + "/" + path
-    Try(io.Source.fromResource(targetPath, getClass.getClassLoader)).recover {
-      case e => throw new FileNotFoundException(targetPath)
+    Try(scala.io.Source.fromResource(targetPath, getClass.getClassLoader)).recover {
+      case _ => throw new FileNotFoundException(targetPath)
     }.get
 
   }
