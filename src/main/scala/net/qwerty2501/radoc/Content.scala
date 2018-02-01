@@ -2,31 +2,31 @@ package net.qwerty2501.radoc
 
 import scala.xml._
 
-trait Content {}
+trait Content {
+  private[radoc] def renderHtml(contentType: ContentType): Node
+}
 
 object Content {
   def apply(): Content = NothingContent()
   def apply(text: String): Content =
     if (text != "") TextContent(text) else NothingContent()
-  def apply(element:Elem):Content = XMLContent(element)
 
-  def apply(text:String,contentType:String):Content = if( contentType.contains("json") ){
-    Content()
-  } else if (contentType.contains("xml")){
-    apply(xml.XML.loadString(text))
-  } else {
-    apply(text)
-  }
 }
 
 private case class NothingContent() extends Content {
-  override def toString: String = ""
+
+  override private[radoc] def renderHtml(contentType: ContentType) =
+    xml.Text("")
 }
 
 private case class TextContent(text: String) extends Content {
-  override def toString:String = text
-}
+  override private[radoc] def renderHtml(contentType: ContentType) =
+    contentType match {
+      case ContentType.Xml => renderXml()
+      case _               => xml.Text(text)
+    }
 
-private case class XMLContent(element:Elem) extends Content{
-  override def toString: String =  Xhtml.toXhtml(element)
+  private def renderXml(): Node = {
+    Unparsed(Xhtml.toXhtml(XML.loadString(text)))
+  }
 }
