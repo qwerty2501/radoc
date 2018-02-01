@@ -7,7 +7,6 @@ import scala.xml._
 
 private object APIDocumentHtmlRenderer {
 
-
   private[radoc] def render(rootAPIDocument: RootAPIDocument,
                             context: APIDocumentRendererContext): String = {
     val doc = renderRootAPIDocument(rootAPIDocument, context)
@@ -21,142 +20,15 @@ private object APIDocumentHtmlRenderer {
   }
 
   private[radoc] def renderRootAPIDocument(
-                                            rootAPIDocument: RootAPIDocument,
-                                            context: APIDocumentRendererContext): Elem = {
+      rootAPIDocument: RootAPIDocument,
+      context: APIDocumentRendererContext): Elem = {
 
     <html>
       <head>
         <meta charset="UTF-8"/>
         <title>{rootAPIDocument.title}</title>
-        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous"/>
-        <style>
-          {
-          """
-            |/*!
-            | * Start Bootstrap - Simple Sidebar (https://startbootstrap.com/template-overviews/simple-sidebar)
-            | * Copyright 2013-2017 Start Bootstrap
-            | * Licensed under MIT (https://github.com/BlackrockDigital/startbootstrap-simple-sidebar/blob/master/LICENSE)
-            | */
-            |
-            |body {
-            |  overflow-x: hidden;
-            |}
-            |
-            |#wrapper {
-            |  padding-left: 0;
-            |  -webkit-transition: all 0.5s ease;
-            |  -moz-transition: all 0.5s ease;
-            |  -o-transition: all 0.5s ease;
-            |  transition: all 0.5s ease;
-            |}
-            |
-            |#wrapper.toggled {
-            |  padding-left: 250px;
-            |}
-            |
-            |#sidebar-wrapper {
-            |  z-index: 1000;
-            |  position: fixed;
-            |  left: 250px;
-            |  width: 0;
-            |  height: 100%;
-            |  margin-left: -250px;
-            |  overflow-y: auto;
-            |  background: #000;
-            |  -webkit-transition: all 0.5s ease;
-            |  -moz-transition: all 0.5s ease;
-            |  -o-transition: all 0.5s ease;
-            |  transition: all 0.5s ease;
-            |}
-            |
-            |#wrapper.toggled #sidebar-wrapper {
-            |  width: 250px;
-            |}
-            |
-            |#page-content-wrapper {
-            |  width: 100%;
-            |  position: absolute;
-            |  padding: 15px;
-            |}
-            |
-            |#wrapper.toggled #page-content-wrapper {
-            |  position: absolute;
-            |  margin-right: -250px;
-            |}
-            |
-            |
-            |/* Sidebar Styles */
-            |
-            |.sidebar-nav {
-            |  position: absolute;
-            |  top: 0;
-            |  width: 250px;
-            |  margin: 0;
-            |  padding: 0;
-            |  list-style: none;
-            |}
-            |
-            |.sidebar-nav li {
-            |  text-indent: 20px;
-            |  line-height: 40px;
-            |}
-            |
-            |.sidebar-nav li a {
-            |  display: block;
-            |}
-            |
-            |.sidebar-nav li a:hover {
-            |  text-decoration: none;
-            |  color: #fff;
-            |  background: rgba(255, 255, 255, 0.2);
-            |}
-            |
-            |.sidebar-nav li a:active, .sidebar-nav li a:focus {
-            |  text-decoration: none;
-            |}
-            |
-            |.sidebar-nav>.sidebar-brand {
-            |  height: 65px;
-            |  font-size: 18px;
-            |  line-height: 60px;
-            |}
-            |
-            |.sidebar-nav>.sidebar-brand a {
-            |  color: #999999;
-            |}
-            |
-            |.sidebar-nav>.sidebar-brand a:hover {
-            |  color: #fff;
-            |  background: none;
-            |}
-            |
-            |@media(min-width:768px) {
-            |  #wrapper {
-            |    padding-left: 0;
-            |  }
-            |  #wrapper.toggled {
-            |    padding-left: 250px;
-            |  }
-            |  #sidebar-wrapper {
-            |    width: 0;
-            |  }
-            |  #wrapper.toggled #sidebar-wrapper {
-            |    width: 250px;
-            |  }
-            |  #page-content-wrapper {
-            |    padding: 20px;
-            |    position: relative;
-            |  }
-            |  #wrapper.toggled #page-content-wrapper {
-            |    position: relative;
-            |    margin-right: 0;
-            |  }
-            |}
-            |
-            |
-              """.stripMargin
-          }
-        </style>
+        {renderCss("bootstrap.min.css")}
+        {renderCss("simple-sidebar.css")}
 
       </head>
 
@@ -194,84 +66,17 @@ private object APIDocumentHtmlRenderer {
           }
           }
         </div>
-
-
-
-
-
-
-        <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
-        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.bundle.min.js" integrity="sha384-feJI7QwhOS+hwpX2zkaeJQjeiwlhOP+SdQDqhgvvo1DsjtiSQByFdThsxO669S2D" crossorigin="anonymous"></script>
-        <script type="text/javascript">
-          {
-          """
-            |function renderContent(mainContentId,contentId){
-            | var target = document.getElementById(mainContentId);
-            | var content = document.importNode(document.getElementById(contentId).content,true);
-            | target.textContent = null;
-            | target.appendChild(content);
-            |}
-          """.stripMargin
-          }
-          {Unparsed(
-          """
-            |var getUrlParameter = function getUrlParameter(sParam) {
-            |    var sPageURL = decodeURIComponent(window.location.search.substring(1)),
-            |        sURLVariables = sPageURL.split('&'),
-            |        sParameterName,
-            |        i;
-            |
-            |    for (i = 0; i < sURLVariables.length; i++) {
-            |        sParameterName = sURLVariables[i].split('=');
-            |
-            |        if (sParameterName[0] === sParam) {
-            |            return sParameterName[1] === undefined ? true : sParameterName[1];
-            |        }
-            |    }
-            |};
-          """.stripMargin)
-
-          }
-          {
-          Unparsed(
-            """
-              |
-              |$( document ).ready(function(){
-              | var mainContentId=getUrlParameter('mainContentId');
-              | var contentId=getUrlParameter('contentId');
-              | if (mainContentId != null){
-              |   if (contentId != null){
-              |     renderContent(mainContentId,contentId);
-              |   }
-              | }
-              |});
-              |
-              """.stripMargin)
-
-
-          }
-        </script>
-        <script type="text/javascript">
-          {
-          """
-            |
-            |$('#menu-toggle').click(function(e) {
-            |  e.preventDefault();
-            | $('#wrapper').toggleClass('toggled');
-            |});
-            |
-              """.stripMargin
-          }
-        </script>
+        {renderJavaScript("jquery-3.3.1.slim.min.js")}
+        {renderJavaScript("bootstrap.bundle.min.js")}
+        {renderJavaScript("ui.js")}
       </body>
     </html>
   }
 
   private[radoc] def renderRootAPIDocumentWithVersion(
-                                                       rootAPIDocumentWithVersion: RootAPIDocumentWithVersion,
-                                                       rootAPIDocument: RootAPIDocument,
-                                                       context: APIDocumentRendererContext): Elem = {
+      rootAPIDocumentWithVersion: RootAPIDocumentWithVersion,
+      rootAPIDocument: RootAPIDocument,
+      context: APIDocumentRendererContext): Elem = {
 
     val apiCategories = rootAPIDocumentWithVersion.apiCategories
     val mainContentId =
@@ -336,11 +141,11 @@ private object APIDocumentHtmlRenderer {
   }
 
   private[radoc] def renderAPIGroupDocument(
-                                             apiDocumentGroup: APIDocumentGroup,
-                                             currentCategory: APIDocumentCategory,
-                                             currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
-                                             rootAPIDocument: RootAPIDocument,
-                                             context: APIDocumentRendererContext): Elem = {
+      apiDocumentGroup: APIDocumentGroup,
+      currentCategory: APIDocumentCategory,
+      currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
+      rootAPIDocument: RootAPIDocument,
+      context: APIDocumentRendererContext): Elem = {
     <div>
       <div>
         <h1 class="bd-title">{apiDocumentGroup.group}</h1>
@@ -357,12 +162,12 @@ private object APIDocumentHtmlRenderer {
   }
 
   private[radoc] def renderAPIDocument(
-                                        apiDocument: APIDocument,
-                                        currentGroup: APIDocumentGroup,
-                                        currentCategory: APIDocumentCategory,
-                                        currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
-                                        rootAPIDocument: RootAPIDocument,
-                                        context: APIDocumentRendererContext): Elem = {
+      apiDocument: APIDocument,
+      currentGroup: APIDocumentGroup,
+      currentCategory: APIDocumentCategory,
+      currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
+      rootAPIDocument: RootAPIDocument,
+      context: APIDocumentRendererContext): Elem = {
 
     <p>
       <div >
@@ -412,13 +217,13 @@ private object APIDocumentHtmlRenderer {
   }
 
   private[radoc] def renderMessageDocument(
-                                            messageDocument: MessageDocument,
-                                            currentAPIDocument: APIDocument,
-                                            currentGroup: APIDocumentGroup,
-                                            currentCategory: APIDocumentCategory,
-                                            currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
-                                            rootAPIDocument: RootAPIDocument,
-                                            context: APIDocumentRendererContext): Elem = {
+      messageDocument: MessageDocument,
+      currentAPIDocument: APIDocument,
+      currentGroup: APIDocumentGroup,
+      currentCategory: APIDocumentCategory,
+      currentAPIDocumentWithVersion: RootAPIDocumentWithVersion,
+      rootAPIDocument: RootAPIDocument,
+      context: APIDocumentRendererContext): Elem = {
 
     def renderMessage(message: Message, contentId: String): Elem = {
       <div>
@@ -510,6 +315,16 @@ private object APIDocumentHtmlRenderer {
 
     </div>
 
+  }
+
+  private def renderCss(fileName: String): Node = {
+    val path = "assets/css/" + fileName
+    <style>{ResourceLoader.loadCss(fileName)}</style>
+  }
+
+  private def renderJavaScript(fileName: String): Node = {
+    val path = "assets/js/" + fileName
+    <script type="text/javascript">{ResourceLoader.loadJavaScript(fileName)}</script>
   }
 
   private[radoc] def tabId(apiDocument: APIDocument,
