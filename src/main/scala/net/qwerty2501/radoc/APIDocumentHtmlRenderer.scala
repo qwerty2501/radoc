@@ -232,12 +232,7 @@ private object APIDocumentHtmlRenderer {
     def renderMessage(message: Message, contentId: String): Elem = {
       <div>
         <div>
-          {
-          renderParameters("Headers", message.headerMap.map{ arg=>
-            val name = arg._1
-            val param = arg._2
-            Parameter(name,param.value,param.typeName,param.description)}.toSeq)
-          }
+          {renderParameters("Headers", message.headers.getHeaders)}
         </div>
 
         {renderContent(message,contentId)}
@@ -252,7 +247,7 @@ private object APIDocumentHtmlRenderer {
 
           <button type="button" class="btn btn-info" data-toggle="collapse" data-target={"#"+contentId}>expand example content</button>
           <div id={contentId} class="collapse">
-            <pre><br/><code class="json">{message.content.renderHtml(ContentType(message.headerMap))}</code><br/></pre>
+            <pre><br/><code class="json">{message.content.renderHtml(ContentType(message.headers.getHeaders))}</code><br/></pre>
           </div>
         </div>
 
@@ -277,7 +272,7 @@ private object APIDocumentHtmlRenderer {
             {
             parameters.map { parameter =>
               <tr >
-                <td scope="row" style="width:15%;">{parameter.name}</td>
+                <td scope="row" style="width:15%;">{parameter.field}</td>
                 <td style="width:15%;" >{parameter.typeName}</td>
                 <td style="width:70%;" >{parameter.description.renderHtml(
                   TextRenderingArguments(

@@ -27,14 +27,14 @@ case class PathOfUrlPath(override val displayPath: String,
                   this.actualPath + "/" + path,
                   this.pathParameters)
   def /(parameterPath: Parameter): PathOfUrlPath =
-    PathOfUrlPath(this.displayPath + "/:" + parameterPath.name,
+    PathOfUrlPath(this.displayPath + "/:" + parameterPath.field,
                   this.actualPath + "/" + parameterPath.value,
                   this.pathParameters :+ parameterPath)
 
   def :?(queryParameter: Parameter): QueriesOfUrlPath =
     QueriesOfUrlPath(
       this.displayPath,
-      this.actualPath + "?" + queryParameter.name + "=" + queryParameter.value.toString,
+      this.actualPath + "?" + queryParameter.field + "=" + queryParameter.value.toString,
       this.pathParameters,
       this.queries :+ queryParameter)
 }
@@ -47,7 +47,7 @@ case class QueriesOfUrlPath(override val displayPath: String,
   def &(queryParameter: Parameter): QueriesOfUrlPath =
     QueriesOfUrlPath(
       this.displayPath,
-      this.actualPath + "&" + queryParameter.name + "=" + queryParameter.value.toString,
+      this.actualPath + "&" + queryParameter.field + "=" + queryParameter.value.toString,
       this.pathParameters,
       this.queries :+ queryParameter)
 }

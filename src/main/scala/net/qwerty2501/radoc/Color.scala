@@ -1,6 +1,6 @@
 package net.qwerty2501.radoc
 
-private case class Color(r: Int, g: Int, b: Int)
+private[radoc] case class Color(r: Int, g: Int, b: Int)
 
 private object Color {
   def apply(): Color = Color(0, 0, 0)

@@ -1,39 +1,56 @@
 package net.qwerty2501.radoc
 
-case class Parameter(name: String,
-                     value: Any,
-                     typeName: String,
-                     description: Text) {
+case class Parameter private (field: String,
+                              value: Any,
+                              typeName: String,
+                              description: Text,
+                              private[radoc] val color: Color) {
 
-  def this(name: String,
+  def this(field: String, value: Any, typeName: String, description: Text) =
+    this(field, value, typeName, description, ParameterColor.color())
+  def this(field: String,
            value: Any,
            typeNames: Seq[String],
            description: Text) =
-    this(name, value, typeNames.mkString(" | "), description)
+    this(field, value, typeNames.mkString(" | "), description)
 
-  def this(name: String, value: Any, valueType: Class[_], description: Text) =
-    this(name, value, valueType.getSimpleName, description)
+  def this(field: String, value: Any, valueType: Class[_], description: Text) =
+    this(field, value, valueType.getSimpleName, description)
 
-  def this(name: String, value: Any, description: Text) =
-    this(name,
+  def this(field: String, value: Any, description: Text) =
+    this(field,
          value,
-         if (value != null) value.getClass.getSimpleName else "null",
+         if (value != null) value.getClass else AnyRef.getClass,
          description)
 
 }
 
 object Parameter {
-  def apply(name: String, value: Any, description: Text): Parameter =
-    new Parameter(name, value, value.getClass, description)
-  def apply(name: String,
+  private def apply(field: String,
+                    value: Any,
+                    typeName: String,
+                    description: Text,
+                    color: Color): Parameter =
+    new Parameter(field, value, typeName, description)
+
+  def apply(field: String,
+            value: Any,
+            typeName: String,
+            description: Text): Parameter =
+    new Parameter(field, value, typeName, description)
+
+  def apply(field: String, value: Any, description: Text): Parameter =
+    new Parameter(field, value, value.getClass, description)
+
+  def apply(field: String,
             value: Any,
             valueType: Class[_],
             description: Text): Parameter =
-    new Parameter(name, value, valueType, description)
+    new Parameter(field, value, valueType, description)
 
-  def apply(name: String,
+  def apply(field: String,
             value: Any,
             typeNames: Seq[String],
             description: Text) =
-    new Parameter(name, value, typeNames, description)
+    new Parameter(field, value, typeNames, description)
 }

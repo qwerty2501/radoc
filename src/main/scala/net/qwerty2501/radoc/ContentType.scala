@@ -8,10 +8,11 @@ private object ContentType {
   val Json = new ContentType()
   val Xml = new ContentType()
   val Text = new ContentType()
-  private[radoc] def apply(headerMap: HeaderMap): ContentType = {
+  private[radoc] def apply(headers: Seq[Parameter]): ContentType = {
     val contentType =
-      headerMap
-        .getOrElse("Content-Type", HeaderParameter("", radoc.Text()))
+      headers.headOption
+        .find(_.field == "Content-Type")
+        .getOrElse(Parameter("Content-Type", "", radoc.Text()))
         .value
         .toString
 

@@ -17,9 +17,8 @@ class APIDocumentRendererSpec extends FlatSpec with Matchers {
                      """.stripMargin
     val sampleResponse = Response(
       Status.Ok,
-      Map(
-        ("Content-Type",
-         HeaderParameter("application/json", Text("content type")))
+      Seq(
+        Parameter("Content-Type", "application/json", Text("content type"))
       ),
       sampleJson
     )
@@ -56,18 +55,18 @@ class APIDocumentRendererSpec extends FlatSpec with Matchers {
       sampleResponse
     )
     builder.append(
-      Request.post(UrlPath / "sample/path",
-                   Map(
-                     ("Content-Type",
-                      HeaderParameter("application/json", Text("content type")))
-                   ),
-                   sampleJson),
+      Request.post(
+        UrlPath / "sample/path",
+        Seq(
+          Parameter("Content-Type", "application/json", Text("content type"))
+        ),
+        sampleJson),
       sampleResponse)
     builder.append(
       Request.get(
         UrlPath / "sample/path2",
-        Map(
-          ("Accept-Language", HeaderParameter("en-US", Text("accept language")))
+        Seq(
+          Parameter("Accept-Language", "en-US", Text("accept language"))
         )),
       Response(Status.Ok))
     builder.setRootDocumentTitle("sample title")
