@@ -3,6 +3,7 @@ package net.qwerty2501.radoc
 private case class Color(r: Int, g: Int, b: Int)
 
 private object Color {
+  def apply(): Color = Color(0, 0, 0)
   def aliceBlue: Color = Color(0xF0, 0xF8, 0xFF)
   def antiqueWhite: Color = Color(0xFA, 0xEB, 0xD7)
   def aqua: Color = Color(0x00, 0xFF, 0xFF)
