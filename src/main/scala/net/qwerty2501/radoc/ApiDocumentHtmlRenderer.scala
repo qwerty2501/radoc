@@ -247,8 +247,11 @@ private object ApiDocumentHtmlRenderer {
       <div>
 
         <button type="button" class="btn btn-info" data-toggle="collapse" data-target={"#"+contentId}>expand example</button>
-        <div id={contentId} class="collapse">
-          {renderContent(message,contentId)}
+        <div id={contentId} class="collapse" >
+          <div style="background:black;color:white;" >
+            {renderContent(message,contentId)}
+          </div>
+
         </div>
       </div>
     }

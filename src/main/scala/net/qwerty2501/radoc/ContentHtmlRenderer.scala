@@ -15,11 +15,11 @@ object ContentHtmlRenderer {
 private class DefaultContentHtmlRenderer extends ContentHtmlRenderer {
   def render(message: Message, renderArguments: HtmlRenderArguments): Node = {
 
-    ContentType(message.headers) match {
+    <pre style="color:white;"><code>{ContentType(message.headers) match {
       case ContentType.Xml  => renderXml(message, renderArguments)
       case ContentType.Json => renderJson(message, renderArguments)
       case _                => renderText(message, renderArguments)
-    }
+    }}</code></pre>
 
   }
 
