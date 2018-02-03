@@ -32,7 +32,7 @@ private class DefaultContentHtmlRenderer extends ContentHtmlRenderer {
                          renderArguments: HtmlRenderArguments): Node = {
     parse(message.content.contentText) match {
       case Left(e)     => renderText(message, renderArguments)
-      case Right(json) => xml.Text(json.toString)
+      case Right(json) => JsonContentHtmlRenderer.renderer(json)
     }
   }
 
