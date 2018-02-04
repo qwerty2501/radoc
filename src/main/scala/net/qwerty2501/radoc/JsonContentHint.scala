@@ -1,7 +1,6 @@
 package net.qwerty2501.radoc
-import io.circe._
-import io.circe.syntax._
-import io.circe.parser._
+
+import scala.reflect.runtime.universe._
 trait JsonHint {
   val parameterHint: ParameterHint
 }
@@ -14,10 +13,17 @@ case class JsonArrayHint(parameterHint: ParameterHint, children: Seq[JsonHint])
 
 case class JsonValueHint(parameterHint: ParameterHint) extends JsonHint
 
+case class JsonReflectionHint(root: Map[String, Text],
+                              children: Map[(Class[_], String), Text])
+
 object JsonHint {
-  def apply[T](hint: T, descriptionMap: Map[String, Text])(
-      implicit encoder: Encoder[T]): JsonHint = {
-    val hintJson = hint.asJson(encoder)
+  def apply(hint: Class[_],
+            fieldModifier: FieldModifier,
+            descriptionMap: Map[String, Text]): JsonHint = {
+    val rm = scala.reflect.runtime.currentMirror
+    val accessors = rm.classSymbol(hint).toType.members.collect {
+      case m: MethodSymbol if m.isGetter && m.isPublic => m.asType.name
+    }
     JsonObjectHint(ParameterHint(Parameter("", "", Text())), Seq())
   }
 }
