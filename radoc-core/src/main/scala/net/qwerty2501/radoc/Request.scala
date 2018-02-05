@@ -6,11 +6,8 @@ case class Request private (method: Method,
                             body: Body)
     extends Message {
 
-  def this(method: Method,
-           path: UrlPath,
-           headers: Seq[Parameter],
-           content: Body) =
-    this(method, path, HeaderParameterList(headers), content)
+  def this(method: Method, path: UrlPath, headers: Seq[Parameter], body: Body) =
+    this(method, path, HeaderParameterList(headers), body)
 
   def this(method: Method, path: UrlPath, headers: Seq[Parameter]) =
     this(method, path, headers, Body())
@@ -21,8 +18,8 @@ case class Request private (method: Method,
   def this(method: Method, path: UrlPath) =
     this(method, path, Seq(), Body())
 
-  def this(method: Method, path: UrlPath, content: Body) =
-    this(method, path, Seq(), content)
+  def this(method: Method, path: UrlPath, body: Body) =
+    this(method, path, Seq(), body)
 
   def this(method: Method,
            path: UrlPath,
@@ -39,42 +36,40 @@ object Request {
   def get(path: UrlPath, headers: Seq[Parameter]): Request =
     apply(Method.Get, path, headers)
 
-  def post(path: UrlPath, content: String): Request =
-    apply(Method.Post, path, content)
+  def post(path: UrlPath, body: String): Request =
+    apply(Method.Post, path, body)
 
-  def post(path: UrlPath, content: Body): Request =
-    apply(Method.Post, path, content)
+  def post(path: UrlPath, body: Body): Request =
+    apply(Method.Post, path, body)
 
-  def post(path: UrlPath, headers: Seq[Parameter], content: String): Request =
-    apply(Method.Post, path, headers, content)
+  def post(path: UrlPath, headers: Seq[Parameter], body: String): Request =
+    apply(Method.Post, path, headers, body)
 
-  def put(path: UrlPath, content: String): Request =
-    apply(Method.Put, path, content)
+  def put(path: UrlPath, body: String): Request =
+    apply(Method.Put, path, body)
 
-  def put(path: UrlPath, content: Body): Request =
-    apply(Method.Put, path, content)
+  def put(path: UrlPath, body: Body): Request =
+    apply(Method.Put, path, body)
 
-  def put(path: UrlPath, headers: Seq[Parameter], content: String): Request =
-    apply(Method.Put, path, headers, content)
+  def put(path: UrlPath, headers: Seq[Parameter], body: String): Request =
+    apply(Method.Put, path, headers, body)
 
   def delete(path: UrlPath): Request = apply(Method.Delete, path)
 
   def delete(path: UrlPath, headers: Seq[Parameter]): Request =
     apply(Method.Delete, path, headers)
 
-  def delete(path: UrlPath, headers: Seq[Parameter], content: String): Request =
-    apply(Method.Delete, path, headers, content)
+  def delete(path: UrlPath, headers: Seq[Parameter], body: String): Request =
+    apply(Method.Delete, path, headers, body)
 
-  def delete(path: UrlPath,
-             headers: Seq[Parameter],
-             content: Body): Request =
-    apply(Method.Delete, path, headers, content)
+  def delete(path: UrlPath, headers: Seq[Parameter], body: Body): Request =
+    apply(Method.Delete, path, headers, body)
 
   def apply(method: Method,
             path: UrlPath,
             headers: Seq[Parameter],
-            content: Body): Request =
-    new Request(method, path, headers, content)
+            body: Body): Request =
+    new Request(method, path, headers, body)
 
   def apply(method: Method, path: UrlPath, headers: Seq[Parameter]): Request =
     new Request(method, path, headers)
@@ -85,8 +80,8 @@ object Request {
   def apply(method: Method, path: UrlPath): Request =
     new Request(method, path)
 
-  def apply(method: Method, path: UrlPath, content: Body): Request =
-    new Request(method, path, content)
+  def apply(method: Method, path: UrlPath, body: Body): Request =
+    new Request(method, path, body)
 
   def apply(method: Method,
             path: UrlPath,
@@ -97,7 +92,7 @@ object Request {
   private def apply(method: Method,
                     path: UrlPath,
                     headers: HeaderParameterList,
-                    content: Body) =
-    new Request(method, path, headers, content)
+                    body: Body) =
+    new Request(method, path, headers, body)
 
 }

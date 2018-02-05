@@ -5,8 +5,8 @@ case class Response(status: Status,
                     body: Body)
     extends Message {
 
-  def this(status: Status, headers: Seq[Parameter], content: Body) =
-    this(status, HeaderParameterList(headers), content)
+  def this(status: Status, headers: Seq[Parameter], body: Body) =
+    this(status, HeaderParameterList(headers), body)
   def this(status: Status) =
     this(status, Seq(), Body())
 
@@ -16,8 +16,8 @@ case class Response(status: Status,
   def this(status: Status, text: String) =
     this(status, Seq(), Body(text))
 
-  def this(status: Status, content: Body) =
-    this(status, Seq(), content)
+  def this(status: Status, body: Body) =
+    this(status, Seq(), body)
   def this(status: Status, headers: Seq[Parameter], text: String) =
     this(status, headers, Body(text))
 
@@ -30,18 +30,18 @@ object Response {
     new Response(status, headers)
   def apply(status: Status, text: String): Response =
     new Response(status, text)
-  def apply(status: Status, content: Body): Response =
-    new Response(status, content)
+  def apply(status: Status, body: Body): Response =
+    new Response(status, body)
   def apply(status: Status, headers: Seq[Parameter], text: String): Response =
     new Response(status, headers, text)
 
   def apply(status: Status,
             headers: Seq[Parameter],
-            content: Body): Response = new Response(status, headers, content)
+            body: Body): Response = new Response(status, headers, body)
 
   private def apply(status: Status,
                     headers: HeaderParameterList,
-                    content: Body): Response =
-    new Response(status, headers, content)
+                    body: Body): Response =
+    new Response(status, headers, body)
 
 }
