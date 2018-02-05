@@ -1,6 +1,7 @@
 package net.qwerty2501.radoc
 
 import scala.reflect.runtime.universe._
+
 trait JsonBodyHint {
   val parameterHint: ParameterHint
 }
@@ -25,6 +26,14 @@ object JsonBodyHint {
     val accessors = typeOf[T].members.collect {
       case m: MethodSymbol if m.isGetter && m.isPublic => m.asType.name
     }
+
+    JsonObjectBodyHint(
+      ParameterHint(Parameter("", "", Text()), Essentiality.mandatory),
+      Seq())
+  }
+
+  def expected[T](expected: T, fieldModifier: FieldModifier)(
+      implicit ttag: TypeTag[T]): JsonBodyHint = {
     JsonObjectBodyHint(
       ParameterHint(Parameter("", "", Text()), Essentiality.mandatory),
       Seq())
