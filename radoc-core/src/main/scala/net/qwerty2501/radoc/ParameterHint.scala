@@ -1,40 +1,96 @@
 package net.qwerty2501.radoc
+import scala.reflect.runtime.universe._
 
-case class ParameterHint(parameter: Parameter, assertFunc: (Any => Unit)) {
-  def this(field: String, valueType: Class[_], description: Text) =
-    this(Parameter(field, "", valueType, description), _ => {})
+case class ParameterHint(parameter: Parameter,
+                         assertFunc: (Any => Unit),
+                         essentiality: Essentiality) {
+
+  def this(field: String,
+           valueType: Type,
+           description: Text,
+           essentiality: Essentiality) =
+    this(Parameter(field, "", valueType, description), _ => {}, essentiality)
+  def this(field: String, valueType: Type, description: Text) =
+    this(field, valueType, description, Essentiality.mandatory)
+
+  def this(field: String,
+           valueTypeName: String,
+           description: Text,
+           essentiality: Essentiality) =
+    this(Parameter(field, "", valueTypeName, description),
+         _ => {},
+         essentiality)
+
   def this(field: String, valueTypeName: String, description: Text) =
-    this(Parameter(field, "", valueTypeName, description), _ => {})
-  def this(parameter: Parameter) = this(parameter, _ => {})
+    this(field, valueTypeName, description, Essentiality.mandatory)
+  def this(parameter: Parameter, essentiality: Essentiality) =
+    this(parameter, _ => {}, essentiality)
+
+  def this(parameter: Parameter) =
+    this(parameter, _ => {}, Essentiality.mandatory)
+  def this(field: String,
+           value: Any,
+           description: Text,
+           assertFunc: (Any => Unit),
+           essentiality: Essentiality) =
+    this(Parameter(field, value, description), assertFunc, essentiality)
 
   def this(field: String,
            value: Any,
            description: Text,
            assertFunc: (Any => Unit)) =
-    this(Parameter(field, value, description), assertFunc)
+    this(Parameter(field, value, description),
+         assertFunc,
+         Essentiality.mandatory)
 }
 
 object ParameterHint {
 
+  def apply[T](field: String, description: Text, essentiality: Essentiality)(
+      implicit tte: TypeTag[T]): ParameterHint =
+    new ParameterHint(field, typeOf[T], description, essentiality)
+
+  def apply[T](field: String, description: Text)(
+      implicit tte: TypeTag[T]): ParameterHint =
+    new ParameterHint(field, typeOf[T], description, Essentiality.mandatory)
+
   def apply(field: String,
-            valueType: Class[_],
-            description: Text): ParameterHint =
-    new ParameterHint(field, valueType, description)
+            valueTypeName: String,
+            description: Text,
+            essentiality: Essentiality): ParameterHint =
+    new ParameterHint(field, valueTypeName, description, essentiality)
 
   def apply(field: String,
             valueTypeName: String,
             description: Text): ParameterHint =
-    new ParameterHint(field, valueTypeName, description)
+    new ParameterHint(field, valueTypeName, description, Essentiality.mandatory)
 
-  def apply(parameter: Parameter) = new ParameterHint(parameter)
+  def apply(parameter: Parameter, essentiality: Essentiality): ParameterHint =
+    new ParameterHint(parameter, essentiality)
+
+  def apply(parameter: Parameter) =
+    new ParameterHint(parameter, Essentiality.mandatory)
 
   def apply(field: String,
             value: Any,
             description: Text,
+            assertFunc: (Any => Unit),
+            essentiality: Essentiality): ParameterHint =
+    new ParameterHint(Parameter(field, value, description),
+                      assertFunc,
+                      essentiality)
+  def apply(field: String,
+            value: Any,
+            description: Text,
             assertFunc: (Any => Unit)): ParameterHint =
-    new ParameterHint(Parameter(field, value, description), assertFunc)
+    new ParameterHint(Parameter(field, value, description),
+                      assertFunc,
+                      Essentiality.mandatory)
 
-  def withEqualAssert(field: String, expected: Any, description: Text) =
+  def withEqualAssert(field: String,
+                      expected: Any,
+                      description: Text,
+                      essentiality: Essentiality): ParameterHint =
     ParameterHint(
       field,
       expected,
@@ -45,20 +101,36 @@ object ParameterHint {
           throw new AssertionError(
             "The expected is" + ParameterValue(expected).toString + "but the actual is" + ParameterValue(
               actual).toString)
-      }
+      },
+      essentiality
     )
 
-  def withTypeAssert(field: String, expected: Class[_], description: Text) =
+  def withEqualAssert(field: String,
+                      expected: Any,
+                      description: Text): ParameterHint =
+    withEqualAssert(field, expected, description, Essentiality.mandatory)
+
+  def withTypeAssert[T](
+      field: String,
+      description: Text,
+      essentiality: Essentiality)(implicit tte: TypeTag[T]): ParameterHint = {
+    val valueType = typeOf[T]
     ParameterHint(
-      Parameter(field, "", expected.getSimpleName, description),
+      Parameter(field, "", valueType.typeSymbol.name.toString, description),
       actualValue => {
 
-        if (actualValue != null && expected != actualValue.getClass)
+        if (actualValue != null && valueType.getClass != actualValue.getClass)
           throw new AssertionError(
-            "The expected type is " + expected.getName + "but the actual is not equal " + actualValue.getClass.getName
+            "The expected type is " + valueType.typeSymbol.fullName + "but the actual is not equal " + actualValue.getClass.getName
           )
-        else if (actualValue == null)
+        else if (essentiality == Essentiality.mandatory && actualValue == null)
           throw new AssertionError("The actual value is null")
-      }
+      },
+      essentiality
     )
+  }
+  def withTypeAssert[T](field: String, description: Text)(
+      implicit tte: TypeTag[T]): ParameterHint =
+    withTypeAssert[T](field, description, Essentiality.mandatory)
+
 }
