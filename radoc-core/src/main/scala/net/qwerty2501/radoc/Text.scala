@@ -19,7 +19,7 @@ private case class CustomText(handler: (HtmlRenderArguments) => Node)
 
 object Text {
   def apply(): Text = apply("")
-  def apply(text: String): Text = NodeText(xml.Text(text))
+  def apply(text: String): Text = NodeText(Unparsed(text))
   def apply(node: Node): Text = NodeText(node)
   def apply(handler: (HtmlRenderArguments) => Node): Text =
     CustomText(handler)
