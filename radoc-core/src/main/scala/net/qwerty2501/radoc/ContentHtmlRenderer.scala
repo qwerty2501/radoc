@@ -25,12 +25,12 @@ private class DefaultContentHtmlRenderer extends ContentHtmlRenderer {
 
   private def renderText(message: Message,
                          renderArguments: HtmlRenderArguments): Node = {
-    Unparsed(message.content.contentText)
+    Unparsed(message.body.contentText)
   }
 
   private def renderJson(message: Message,
                          renderArguments: HtmlRenderArguments): Node = {
-    parse(message.content.contentText) match {
+    parse(message.body.contentText) match {
       case Left(e)     => renderText(message, renderArguments)
       case Right(json) => JsonContentHtmlRenderer.renderer(json)
     }
@@ -38,6 +38,6 @@ private class DefaultContentHtmlRenderer extends ContentHtmlRenderer {
 
   private def renderXml(message: Message,
                         renderArguments: HtmlRenderArguments): Node = {
-    Unparsed(Xhtml.toXhtml(XML.loadString(message.content.contentText)))
+    Unparsed(Xhtml.toXhtml(XML.loadString(message.body.contentText)))
   }
 }

@@ -3,32 +3,32 @@ package net.qwerty2501.radoc
 case class Request private (method: Method,
                             path: UrlPath,
                             headers: HeaderParameterList,
-                            content: Content)
+                            body: Body)
     extends Message {
 
   def this(method: Method,
            path: UrlPath,
            headers: Seq[Parameter],
-           content: Content) =
+           content: Body) =
     this(method, path, HeaderParameterList(headers), content)
 
   def this(method: Method, path: UrlPath, headers: Seq[Parameter]) =
-    this(method, path, headers, Content())
+    this(method, path, headers, Body())
 
   def this(method: Method, path: UrlPath, text: String) =
-    this(method, path, Seq(), Content(text))
+    this(method, path, Seq(), Body(text))
 
   def this(method: Method, path: UrlPath) =
-    this(method, path, Seq(), Content())
+    this(method, path, Seq(), Body())
 
-  def this(method: Method, path: UrlPath, content: Content) =
+  def this(method: Method, path: UrlPath, content: Body) =
     this(method, path, Seq(), content)
 
   def this(method: Method,
            path: UrlPath,
            headers: Seq[Parameter],
            text: String) =
-    this(method, path, headers, Content(text))
+    this(method, path, headers, Body(text))
 
 }
 
@@ -42,7 +42,7 @@ object Request {
   def post(path: UrlPath, content: String): Request =
     apply(Method.Post, path, content)
 
-  def post(path: UrlPath, content: Content): Request =
+  def post(path: UrlPath, content: Body): Request =
     apply(Method.Post, path, content)
 
   def post(path: UrlPath, headers: Seq[Parameter], content: String): Request =
@@ -51,7 +51,7 @@ object Request {
   def put(path: UrlPath, content: String): Request =
     apply(Method.Put, path, content)
 
-  def put(path: UrlPath, content: Content): Request =
+  def put(path: UrlPath, content: Body): Request =
     apply(Method.Put, path, content)
 
   def put(path: UrlPath, headers: Seq[Parameter], content: String): Request =
@@ -67,37 +67,37 @@ object Request {
 
   def delete(path: UrlPath,
              headers: Seq[Parameter],
-             content: Content): Request =
+             content: Body): Request =
     apply(Method.Delete, path, headers, content)
 
   def apply(method: Method,
             path: UrlPath,
             headers: Seq[Parameter],
-            content: Content): Request =
+            content: Body): Request =
     new Request(method, path, headers, content)
 
   def apply(method: Method, path: UrlPath, headers: Seq[Parameter]): Request =
     new Request(method, path, headers)
 
   def apply(method: Method, path: UrlPath, text: String): Request =
-    new Request(method, path, Content(text))
+    new Request(method, path, Body(text))
 
   def apply(method: Method, path: UrlPath): Request =
     new Request(method, path)
 
-  def apply(method: Method, path: UrlPath, content: Content): Request =
+  def apply(method: Method, path: UrlPath, content: Body): Request =
     new Request(method, path, content)
 
   def apply(method: Method,
             path: UrlPath,
             headers: Seq[Parameter],
             text: String): Request =
-    new Request(method, path, headers, Content(text))
+    new Request(method, path, headers, Body(text))
 
   private def apply(method: Method,
                     path: UrlPath,
                     headers: HeaderParameterList,
-                    content: Content) =
+                    content: Body) =
     new Request(method, path, headers, content)
 
 }

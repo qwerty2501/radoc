@@ -33,7 +33,7 @@ class ApiDocumentSpec extends FlatSpec with Matchers {
         Map(
           "v1" -> MessageDocument("v1",
                                   Request.post(UrlPath / "test/path",
-                                               Content()),
+                                               Body()),
                                   Response(Status.Ok)),
           "v2" -> MessageDocument("v2",
                                   Request.get(UrlPath / "test/path"),
