@@ -1,5 +1,6 @@
 package net.qwerty2501.radoc
 
+import scala.reflect.runtime.universe._
 case class ParameterValue(value: Any) {
 
   override def hashCode(): Int = if (value == null) 0 else value.hashCode
@@ -26,14 +27,8 @@ case class Parameter private (field: String,
            description: Text) =
     this(field, value, typeNames.mkString(" | "), description)
 
-  def this(field: String, value: Any, valueType: Class[_], description: Text) =
-    this(field, value, valueType.getSimpleName, description)
-
-  def this(field: String, value: Any, description: Text) =
-    this(field,
-         value,
-         if (value != null) value.getClass else AnyRef.getClass,
-         description)
+  def this(field: String, value: Any, tte: Type, description: Text) =
+    this(field, value, tte.typeSymbol.name.toString, description)
 
 }
 
@@ -52,14 +47,18 @@ object Parameter {
             description: Text): Parameter =
     new Parameter(field, value, typeName, description)
 
-  def apply(field: String, value: Any, description: Text): Parameter =
-    new Parameter(field, value, value.getClass, description)
+  def apply[T](field: String, value: T, description: Text)(
+      implicit ttc: TypeTag[T]): Parameter =
+    new Parameter(field, value, typeOf[T], description)
+  def apply[T](field: String, description: Text)(
+      implicit ttc: TypeTag[T]): Parameter =
+    new Parameter(field, "", typeOf[T], description)
 
   def apply(field: String,
             value: Any,
-            valueType: Class[_],
+            tte: Type,
             description: Text): Parameter =
-    new Parameter(field, value, valueType, description)
+    new Parameter(field, value, tte, description)
 
   def apply(field: String,
             value: Any,
