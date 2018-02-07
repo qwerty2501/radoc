@@ -3,14 +3,16 @@ package net.qwerty2501.radoc
 import scala.reflect._
 
 case class ParameterHint(parameter: Parameter,
-                         assertFunc: (Any => Unit),
+                         assert: ParameterAssert,
                          essentiality: Essentiality) {
 
   def this(field: String,
            valueType: Class[_],
            description: Text,
            essentiality: Essentiality) =
-    this(Parameter(field, "", valueType, description), _ => {}, essentiality)
+    this(Parameter(field, "", valueType, description),
+         ParameterAssert(),
+         essentiality)
   def this(field: String, valueType: Class[_], description: Text) =
     this(field, valueType, description, Essentiality.mandatory)
 
@@ -19,30 +21,28 @@ case class ParameterHint(parameter: Parameter,
            description: Text,
            essentiality: Essentiality) =
     this(Parameter(field, "", valueTypeName, description),
-         _ => {},
+         ParameterAssert(),
          essentiality)
 
   def this(field: String, valueTypeName: String, description: Text) =
     this(field, valueTypeName, description, Essentiality.mandatory)
   def this(parameter: Parameter, essentiality: Essentiality) =
-    this(parameter, _ => {}, essentiality)
+    this(parameter, ParameterAssert(), essentiality)
 
   def this(parameter: Parameter) =
-    this(parameter, _ => {}, Essentiality.mandatory)
+    this(parameter, ParameterAssert(), Essentiality.mandatory)
   def this(field: String,
            value: Any,
            description: Text,
-           assertFunc: (Any => Unit),
+           assert: ParameterAssert,
            essentiality: Essentiality) =
-    this(Parameter(field, value, description), assertFunc, essentiality)
+    this(Parameter(field, value, description), assert, essentiality)
 
   def this(field: String,
            value: Any,
            description: Text,
-           assertFunc: (Any => Unit)) =
-    this(Parameter(field, value, description),
-         assertFunc,
-         Essentiality.mandatory)
+           assert: ParameterAssert) =
+    this(Parameter(field, value, description), assert, Essentiality.mandatory)
 }
 
 object ParameterHint {
@@ -80,17 +80,17 @@ object ParameterHint {
   def apply(field: String,
             value: Any,
             description: Text,
-            assertFunc: (Any => Unit),
+            assert: ParameterAssert,
             essentiality: Essentiality): ParameterHint =
     new ParameterHint(Parameter(field, value, description),
-                      assertFunc,
+                      assert,
                       essentiality)
   def apply(field: String,
             value: Any,
             description: Text,
-            assertFunc: (Any => Unit)): ParameterHint =
+            assert: ParameterAssert): ParameterHint =
     new ParameterHint(Parameter(field, value, description),
-                      assertFunc,
+                      assert,
                       Essentiality.mandatory)
 
   def withEqualAssert(field: String,
@@ -101,13 +101,7 @@ object ParameterHint {
       field,
       expected,
       description,
-      actual => {
-
-        if (expected != actual)
-          throw new AssertionError(
-            "The expected is" + ParameterValue(expected).toString + "but the actual is" + ParameterValue(
-              actual).toString)
-      },
+      ParameterAssert.equalAssert(expected),
       essentiality
     )
 
@@ -123,14 +117,7 @@ object ParameterHint {
     val valueType = ct.runtimeClass
     ParameterHint(
       Parameter(field, "", valueType.getSimpleName, description),
-      actualValue => {
-
-        if (actualValue != null && valueType.getClass != actualValue.getClass)
-          throw new AssertionError(
-            "The expected type is " + valueType.getName + "but the actual is not equal " + actualValue.getClass.getName
-          )
-
-      },
+      ParameterAssert.typeEqualAssert(valueType),
       essentiality
     )
   }
