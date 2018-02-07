@@ -1,16 +1,17 @@
 package net.qwerty2501.radoc
-import scala.reflect.runtime.universe._
+
+import scala.reflect._
 
 case class ParameterHint(parameter: Parameter,
                          assertFunc: (Any => Unit),
                          essentiality: Essentiality) {
 
   def this(field: String,
-           valueType: Type,
+           valueType: Class[_],
            description: Text,
            essentiality: Essentiality) =
     this(Parameter(field, "", valueType, description), _ => {}, essentiality)
-  def this(field: String, valueType: Type, description: Text) =
+  def this(field: String, valueType: Class[_], description: Text) =
     this(field, valueType, description, Essentiality.mandatory)
 
   def this(field: String,
@@ -46,13 +47,18 @@ case class ParameterHint(parameter: Parameter,
 
 object ParameterHint {
 
-  def apply[T](field: String, description: Text, essentiality: Essentiality)(
-      implicit tte: TypeTag[T]): ParameterHint =
-    new ParameterHint(field, typeOf[T], description, essentiality)
+  def apply[T: ClassTag](
+      field: String,
+      description: Text,
+      essentiality: Essentiality)(implicit ct: ClassTag[T]): ParameterHint =
+    new ParameterHint(field, ct.runtimeClass, description, essentiality)
 
-  def apply[T](field: String, description: Text)(
-      implicit tte: TypeTag[T]): ParameterHint =
-    new ParameterHint(field, typeOf[T], description, Essentiality.mandatory)
+  def apply[T: ClassTag](field: String, description: Text)(
+      implicit ct: ClassTag[T]): ParameterHint =
+    new ParameterHint(field,
+                      ct.runtimeClass,
+                      description,
+                      Essentiality.mandatory)
 
   def apply(field: String,
             valueTypeName: String,
@@ -110,27 +116,26 @@ object ParameterHint {
                       description: Text): ParameterHint =
     withEqualAssert(field, expected, description, Essentiality.mandatory)
 
-  def withTypeAssert[T](
+  def withTypeAssert[T: ClassTag](
       field: String,
       description: Text,
-      essentiality: Essentiality)(implicit tte: TypeTag[T]): ParameterHint = {
-    val valueType = typeOf[T]
+      essentiality: Essentiality)(implicit ct: ClassTag[T]): ParameterHint = {
+    val valueType = ct.runtimeClass
     ParameterHint(
-      Parameter(field, "", valueType.typeSymbol.name.toString, description),
+      Parameter(field, "", valueType.getSimpleName, description),
       actualValue => {
 
         if (actualValue != null && valueType.getClass != actualValue.getClass)
           throw new AssertionError(
-            "The expected type is " + valueType.typeSymbol.fullName + "but the actual is not equal " + actualValue.getClass.getName
+            "The expected type is " + valueType.getName + "but the actual is not equal " + actualValue.getClass.getName
           )
-        else if (essentiality == Essentiality.mandatory && actualValue == null)
-          throw new AssertionError("The actual value is null")
+
       },
       essentiality
     )
   }
-  def withTypeAssert[T](field: String, description: Text)(
-      implicit tte: TypeTag[T]): ParameterHint =
+  def withTypeAssert[T: ClassTag](field: String,
+                                  description: Text): ParameterHint =
     withTypeAssert[T](field, description, Essentiality.mandatory)
 
 }
