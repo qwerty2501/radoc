@@ -28,6 +28,30 @@ object JsonBodyHint {
     new JsonBodyHint(recompose(jsonHint, typeParameterMap), typeParameterMap)
   }
 
+  def apply[T:TypeTag](fieldModifier: FieldModifier = FieldModifier.snake): JsonBodyHint = {
+    val accessors = typeOf[T].members.collect {
+      case m: MethodSymbol if m.isGetter && m.isPublic => m.returnType.typeSymbol
+    }
+
+    new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
+      Essentiality.mandatory),
+      Seq()),
+      Map())
+  }
+
+  def expected[T:TypeTag](expected: T, fieldModifier: FieldModifier = FieldModifier.snake): JsonBodyHint = {
+    new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
+      Essentiality.mandatory),
+      Seq()),
+      Map())
+  }
+
+  private def getFromTypeHint(valueType:TypeSymbol, fieldModifier: FieldModifier = FieldModifier.snake,generateAssertHandler:(ParameterHint)=>Unit)(implicit tt:WeakTypeTag[String]) :JsonHint ={
+
+    
+  }
+
+
   private def recompose(
       jsonHint: JsonHint,
       typeParameterMap: Map[String, Seq[Parameter]]): JsonHint = {
@@ -113,22 +137,7 @@ object JsonBodyHint {
   private def getValueHint(jsonValueHint: JsonValueHint,
                            sourceMap: Map[String, Seq[Parameter]]): Parameter =
     jsonValueHint.parameterHint.parameter
-  def apply[T](fieldModifier: FieldModifier = FieldModifier.Snake)(
-      implicit ttag: TypeTag[T]): JsonBodyHint = {
-    val accessors = typeOf[T].members.collect {
-      case m: MethodSymbol if m.isGetter && m.isPublic => m.name.toString
-    }
-    new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
-                                                  Essentiality.mandatory),
-                                    Seq()),
-                     Map())
-  }
 
-  def expected[T](expected: T, fieldModifier: FieldModifier)(
-      implicit ttag: TypeTag[T]): JsonBodyHint = {
-    new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
-                                                  Essentiality.mandatory),
-                                    Seq()),
-                     Map())
-  }
+
+
 }
