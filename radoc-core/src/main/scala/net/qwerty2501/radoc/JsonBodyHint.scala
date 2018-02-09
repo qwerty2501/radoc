@@ -52,6 +52,7 @@ object JsonBodyHint {
                      Map())
   }
 
+  /*
   private def getFromTypeHint(
       symbol: MethodSymbol,
       fieldModifier: FieldModifier = FieldModifier.Snake,
@@ -65,7 +66,7 @@ object JsonBodyHint {
     if (valueType.typeSymbol.asClass.isPrimitive) {}
 
   }
-
+   */
   private def recompose(
       jsonHint: JsonHint,
       typeParameterMap: Map[String, Seq[Parameter]]): JsonHint = {
