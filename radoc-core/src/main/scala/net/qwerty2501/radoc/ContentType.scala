@@ -2,9 +2,10 @@ package net.qwerty2501.radoc
 
 import net.qwerty2501.radoc
 
-private final class ContentType private ()
+final class ContentType private ()
 
-private object ContentType {
+object ContentType {
+  val None = new ContentType()
   val Json = new ContentType()
   val Xml = new ContentType()
   val Text = new ContentType()
