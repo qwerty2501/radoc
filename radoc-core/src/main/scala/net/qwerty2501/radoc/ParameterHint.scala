@@ -14,7 +14,7 @@ case class ParameterHint(parameter: Parameter,
          ParameterAssert(),
          essentiality)
   def this(field: String, valueType: Class[_], description: Text) =
-    this(field, valueType, description, Essentiality.mandatory)
+    this(field, valueType, description, Essentiality.Mandatory)
 
   def this(field: String,
            valueTypeName: String,
@@ -25,12 +25,12 @@ case class ParameterHint(parameter: Parameter,
          essentiality)
 
   def this(field: String, valueTypeName: String, description: Text) =
-    this(field, valueTypeName, description, Essentiality.mandatory)
+    this(field, valueTypeName, description, Essentiality.Mandatory)
   def this(parameter: Parameter, essentiality: Essentiality) =
     this(parameter, ParameterAssert(), essentiality)
 
   def this(parameter: Parameter) =
-    this(parameter, ParameterAssert(), Essentiality.mandatory)
+    this(parameter, ParameterAssert(), Essentiality.Mandatory)
   def this(field: String,
            value: Any,
            description: Text,
@@ -42,7 +42,7 @@ case class ParameterHint(parameter: Parameter,
            value: Any,
            description: Text,
            assert: ParameterAssert) =
-    this(Parameter(field, value, description), assert, Essentiality.mandatory)
+    this(Parameter(field, value, description), assert, Essentiality.Mandatory)
 }
 
 object ParameterHint {
@@ -58,7 +58,7 @@ object ParameterHint {
     new ParameterHint(field,
                       ct.runtimeClass,
                       description,
-                      Essentiality.mandatory)
+                      Essentiality.Mandatory)
 
   def apply(field: String,
             valueTypeName: String,
@@ -69,13 +69,13 @@ object ParameterHint {
   def apply(field: String,
             valueTypeName: String,
             description: Text): ParameterHint =
-    new ParameterHint(field, valueTypeName, description, Essentiality.mandatory)
+    new ParameterHint(field, valueTypeName, description, Essentiality.Mandatory)
 
   def apply(parameter: Parameter, essentiality: Essentiality): ParameterHint =
     new ParameterHint(parameter, essentiality)
 
   def apply(parameter: Parameter) =
-    new ParameterHint(parameter, Essentiality.mandatory)
+    new ParameterHint(parameter, Essentiality.Mandatory)
 
   def apply(field: String,
             value: Any,
@@ -91,7 +91,7 @@ object ParameterHint {
             assert: ParameterAssert): ParameterHint =
     new ParameterHint(Parameter(field, value, description),
                       assert,
-                      Essentiality.mandatory)
+                      Essentiality.Mandatory)
 
   def withEqualAssert(field: String,
                       expected: Any,
@@ -108,7 +108,7 @@ object ParameterHint {
   def withEqualAssert(field: String,
                       expected: Any,
                       description: Text): ParameterHint =
-    withEqualAssert(field, expected, description, Essentiality.mandatory)
+    withEqualAssert(field, expected, description, Essentiality.Mandatory)
 
   def withTypeAssert[T: ClassTag](
       field: String,
@@ -123,6 +123,6 @@ object ParameterHint {
   }
   def withTypeAssert[T: ClassTag](field: String,
                                   description: Text): ParameterHint =
-    withTypeAssert[T](field, description, Essentiality.mandatory)
+    withTypeAssert[T](field, description, Essentiality.Mandatory)
 
 }
