@@ -1,5 +1,7 @@
 package net.qwerty2501.radoc
 
+import scala.reflect.ClassTag
+
 trait ParameterAssert {
   def assert(actual: Any, parameterHint: ParameterHint)
 }
@@ -33,11 +35,14 @@ private class ParameterNothingAssert() extends ParameterAssert {
 }
 
 object ParameterAssert {
+  private[radoc] val default = new ParameterNothingAssert {}
   private final val none = new ParameterNothingAssert()
   def apply(): ParameterAssert = none
   def equalAssert(expected: Any): ParameterAssert =
     new ParameterEqualAssert(expected)
 
+  def typeEqualAssert[T]()(implicit ctg: ClassTag[T]): ParameterAssert =
+    typeEqualAssert(ctg.runtimeClass)
   def typeEqualAssert(expected: Class[_]): ParameterAssert =
     new ParamterTypeEqualAssert(expected)
 
