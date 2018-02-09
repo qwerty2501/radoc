@@ -5,7 +5,8 @@ import net.qwerty2501.radoc._
 class ApiClientMock extends ApiClient {
   override def request(request: Request): Response =
     Response(Status.Ok,
-             body = Body("""
+             Seq(),
+             Body("""
       | {
       |   "code":0,
       |   "message":"OK"
