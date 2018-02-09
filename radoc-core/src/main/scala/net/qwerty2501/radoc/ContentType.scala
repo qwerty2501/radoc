@@ -2,13 +2,15 @@ package net.qwerty2501.radoc
 
 import net.qwerty2501.radoc
 
-final class ContentType private ()
+trait ContentType {
+  def contentType(): String
+}
 
 object ContentType {
-  val None = new ContentType()
-  val Json = new ContentType()
-  val Xml = new ContentType()
-  val Text = new ContentType()
+  val None: ContentType = () => ""
+  val Json: ContentType = () => "application/json"
+  val Xml: ContentType = () => "application/xml"
+  val Html: ContentType = () => "text/html"
   private[radoc] def apply(headers: HeaderParameterList): ContentType = {
     val contentType =
       headers.getHeaders.headOption
@@ -22,7 +24,7 @@ object ContentType {
     } else if (contentType.contains("xml")) {
       Xml
     } else {
-      Text
+      Html
     }
   }
 
