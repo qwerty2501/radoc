@@ -29,7 +29,7 @@ object JsonBodyHint {
   }
 
   def apply[T: TypeTag](
-      fieldModifier: FieldModifier = FieldModifier.snake): JsonBodyHint = {
+      fieldModifier: FieldModifier = FieldModifier.Snake): JsonBodyHint = {
     val accessors = typeOf[T].members.collect {
       case m: MethodSymbol if m.isGetter && m.isPublic =>
         m.returnType.typeSymbol
@@ -45,7 +45,7 @@ object JsonBodyHint {
 
   def expected[T: TypeTag](
       expected: T,
-      fieldModifier: FieldModifier = FieldModifier.snake): JsonBodyHint = {
+      fieldModifier: FieldModifier = FieldModifier.Snake): JsonBodyHint = {
     new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
                                                   Essentiality.Mandatory),
                                     Seq()),
@@ -54,7 +54,7 @@ object JsonBodyHint {
 
   private def getFromTypeHint(
       symbol: MethodSymbol,
-      fieldModifier: FieldModifier = FieldModifier.snake,
+      fieldModifier: FieldModifier = FieldModifier.Snake,
       generateAssertHandler: (ParameterHint) => Unit): JsonHint = {
     val valueType = symbol.returnType
     val typeName =
