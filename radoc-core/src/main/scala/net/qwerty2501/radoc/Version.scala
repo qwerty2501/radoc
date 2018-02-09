@@ -16,6 +16,8 @@ case class Version(major: Int, minor: Int, build: Int) {
 }
 
 object Version {
+  val default: Version = Version(0, 0, 1)
+  val empty: Version = Version()
   def apply(): Version = Version(0)
   def apply(major: Int): Version = Version(major, 0)
   def apply(major: Int, minor: Int): Version = Version(major, minor, 0)
