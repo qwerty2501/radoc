@@ -10,28 +10,18 @@ class ApiDocumentBuilder(private val apiClient: ApiClient,
   def setRootDocumentTitle(title: String): Unit =
     rootAPIDocument = RootApiDocument(title, rootAPIDocument.documents)
   def buildRootAPIDocument: RootApiDocument = rootAPIDocument
-  def request(req: Request, documentArgs: DocumentArgs): Response = {
+
+  def requestAndRequest(req: Request): Response =
+    requestAndRequest(req, DocumentArgs())
+  def requestAndRequest(req: Request, documentArgs: DocumentArgs): Response = {
     val res = apiClient.request(req)
     append(req, res, documentArgs)
     res
   }
 
-  def request(req: Request, category: String, description: Text): Response =
-    request(req, category, description, Version())
-  def request(req: Request,
-              category: String,
-              description: Text,
-              version: Version): Response =
-    request(req, DocumentArgs(category, description, version))
-
-  def request(req: Request, description: Text): Response =
-    request(req, "", description)
-
-  def request(req: Request): Response = request(req, Text())
-
-  def append(req: Request,
-             res: Response,
-             documentArgs: DocumentArgs = DocumentArgs()): Unit = {
+  def append(req: Request, res: Response): Unit =
+    append(req, res, DocumentArgs())
+  def append(req: Request, res: Response, documentArgs: DocumentArgs): Unit = {
     val apiGroup =
       if (documentArgs.group == "") req.path.displayPath else documentArgs.group
 
