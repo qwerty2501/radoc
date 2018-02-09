@@ -11,7 +11,7 @@ class ApiDocumentBuilderSpec extends FlatSpec with Matchers {
     val response = apiDocumentBuilder.request(Request.get(path))
 
     val apiDocument = apiDocumentBuilder.buildRootAPIDocument
-      .documents(Version.default)
+      .documents(Version.firstVersion)
       .apiCategories("")
       .apiDocumentGroups(path.displayPath)
       .apiDocuments(Method.Get, path.displayPath)
@@ -31,7 +31,7 @@ class ApiDocumentBuilderSpec extends FlatSpec with Matchers {
     val response = apiDocumentBuilder.request(Request.get(path), description)
 
     val apiDocument = apiDocumentBuilder.buildRootAPIDocument
-      .documents(Version.default)
+      .documents(Version.firstVersion)
       .apiCategories("")
       .apiDocumentGroups(path.displayPath)
       .apiDocuments(Method.Get, path.displayPath)
@@ -79,7 +79,7 @@ class ApiDocumentBuilderSpec extends FlatSpec with Matchers {
     apiDocumentBuilder.request(Request.get(targetPath))
     apiDocumentBuilder.request(Request.post(targetPath, body = Body()))
     val apiDocumentGroup = apiDocumentBuilder.buildRootAPIDocument
-      .documents(Version.default)
+      .documents(Version.firstVersion)
       .apiCategories("")
       .apiDocumentGroups(targetPath.displayPath)
 

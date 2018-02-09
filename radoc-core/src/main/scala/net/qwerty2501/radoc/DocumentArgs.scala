@@ -1,10 +1,10 @@
 package net.qwerty2501.radoc
 
-case class DocumentArgs(category: String,
-                        group: String,
-                        description: Text,
-                        messageName: String,
-                        version: Version) {
+case class DocumentArgs(category: String = "",
+                        group: String = "",
+                        description: Text = Text(),
+                        messageName: String = "",
+                        version: Version = Version.firstVersion) {
   def this(category: String, description: Text, version: Version) =
     this(category, "", description, "", version)
 }

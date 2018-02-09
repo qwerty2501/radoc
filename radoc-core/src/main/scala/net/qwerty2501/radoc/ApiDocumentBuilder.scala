@@ -4,7 +4,7 @@ import scala.collection.mutable
 
 class ApiDocumentBuilder(private val apiClient: ApiClient,
                          private val defaultVersion: Version) {
-  def this(apiClient: ApiClient) = this(apiClient, Version.default)
+  def this(apiClient: ApiClient) = this(apiClient, Version.firstVersion)
   private var rootAPIDocument = RootApiDocument("", Map())
 
   def setRootDocumentTitle(title: String): Unit =
@@ -29,29 +29,14 @@ class ApiDocumentBuilder(private val apiClient: ApiClient,
 
   def request(req: Request): Response = request(req, Text())
 
-  def append(req: Request, res: Response): Unit =
-    append(req, res, Text())
-  def append(req: Request, res: Response, description: Text): Unit =
-    append(req, res, "", description)
-
   def append(req: Request,
              res: Response,
-             category: String,
-             description: Text): Unit =
-    append(req, res, category, description, Version())
-  def append(req: Request,
-             res: Response,
-             category: String,
-             description: Text,
-             version: Version): Unit =
-    append(req, res, DocumentArgs(category, description, version))
-
-  def append(req: Request, res: Response, documentArgs: DocumentArgs): Unit = {
+             documentArgs: DocumentArgs = DocumentArgs()): Unit = {
     val apiGroup =
       if (documentArgs.group == "") req.path.displayPath else documentArgs.group
 
     val targetVersion =
-      if (documentArgs.version == Version()) defaultVersion
+      if (documentArgs.version == Version.empty) defaultVersion
       else documentArgs.version
 
     rootAPIDocument.synchronized {
