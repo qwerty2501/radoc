@@ -1,5 +1,10 @@
 package net.qwerty2501.radoc
+import java.util.InvalidPropertiesFormatException
+
 import scala.reflect.runtime.universe._
+import scala.tools.reflect.ToolBox
+import com.github.dwickern.macros.NameOf._
+
 object GenericJsonHintFactory {
 
   private type JsonFieldHandler =
@@ -12,6 +17,9 @@ object GenericJsonHintFactory {
       else fieldModifier.fieldModify(name)
   }
   private final val seqTypeName = classOf[Seq[_]].getName
+  private val mirror = runtimeMirror(
+    classOf[FieldHintAnnotation].getClassLoader)
+  private val toolbox = mirror.mkToolBox()
 
   def generate[T: TypeTag](defaultFieldModifier: FieldModifier): JsonHint = {
     new DefaultGenerator(defaultFieldModifier).generate(
@@ -115,7 +123,38 @@ object GenericJsonHintFactory {
     def generateObject(name: FieldName,
                        value: Option[Any],
                        t: Type,
-                       fieldHintAnnotation: FieldHintAnnotation): JsonHint = ???
+                       fieldHintAnnotation: FieldHintAnnotation): JsonHint = {
+
+      JsonObjectHint(
+        generateParameterHint(name,
+                              value,
+                              t.typeSymbol.name.toString,
+                              t,
+                              fieldHintAnnotation),
+        t.members.collect {
+          case m: MethodSymbol if m.isGetter && m.isPublic =>
+            val faOption =
+              m.annotations.find(_.tree.tpe =:= typeOf[FieldHintAnnotation])
+            val fannotation = faOption.fold(FieldHintAnnotation.default) { p =>
+              toolbox
+                .eval(toolbox.untypecheck(p.tree))
+                .asInstanceOf[FieldHintAnnotation]
+            }
+
+            if (fannotation.defaultParameterAssertFactory == ParameterAssertFactory.EqualAssertFactory) {
+              throw new IllegalArgumentException(
+                "invalid specify assert type. if you want assert equal value, use " + nameOf(
+                  JsonBodyHint) + "." + nameOf(JsonBodyHint.expectedHint()))
+            }
+
+            generate(FieldName(m.name.toString),
+                     Option.empty,
+                     m.returnType,
+                     fannotation)
+
+        }.toSeq
+      )
+    }
 
     def generateValue(name: FieldName,
                       value: Option[Any],
