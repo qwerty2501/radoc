@@ -28,45 +28,21 @@ object JsonBodyHint {
     new JsonBodyHint(recompose(jsonHint, typeParameterMap), typeParameterMap)
   }
 
-  def apply[T: TypeTag](
-      fieldModifier: FieldModifier = FieldModifier.Snake): JsonBodyHint = {
-    val accessors = typeOf[T].members.collect {
-      case m: MethodSymbol if m.isGetter && m.isPublic =>
-        m.returnType.typeSymbol
-    }
+  def apply[T: TypeTag](defaultFieldModifier: FieldModifier): JsonBodyHint =
+    apply(GenericJsonHintFactory.generate[T](defaultFieldModifier))
 
-    new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
-                                                  Essentiality.Mandatory),
-                                    Seq()),
-                     Map())
-  }
+  def apply[T: TypeTag](): JsonBodyHint = apply[T](FieldModifier.Snake)
 
-  private final val seqTypeName = classOf[Seq[_]].getName
-
-  def expected[T: TypeTag](
+  def expectedHint[T: TypeTag](
       expected: T,
-      fieldModifier: FieldModifier = FieldModifier.Snake): JsonBodyHint = {
-    new JsonBodyHint(JsonObjectHint(ParameterHint(Parameter("", "", Text()),
-                                                  Essentiality.Mandatory),
-                                    Seq()),
-                     Map())
-  }
+      defaultFieldModifier: FieldModifier): JsonBodyHint =
+    apply(
+      GenericJsonHintFactory
+        .generateExpected(expected, defaultFieldModifier)[T])
 
-  /*
-  private def getFromTypeHint(
-      symbol: MethodSymbol,
-      fieldModifier: FieldModifier = FieldModifier.Snake,
-      generateAssertHandler: (ParameterHint) => Unit): JsonHint = {
-    val valueType = symbol.returnType
-    val typeName =
-      if (valueType.baseClasses.exists(_.asClass.fullName == seqTypeName))
-        "[]" + valueType.typeArgs.head.toString
-      else valueType.toString
+  def expectedHint[T: TypeTag](expected: T): JsonBodyHint =
+    expectedHint[T](expected, FieldModifier.Snake)
 
-    if (valueType.typeSymbol.asClass.isPrimitive) {}
-
-  }
-   */
   private def recompose(
       jsonHint: JsonHint,
       typeParameterMap: Map[String, Seq[Parameter]]): JsonHint = {
