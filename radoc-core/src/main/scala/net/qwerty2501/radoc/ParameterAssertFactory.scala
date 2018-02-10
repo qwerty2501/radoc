@@ -15,4 +15,7 @@ object ParameterAssertFactory {
 
   val EqualTypeFactory: ParameterAssertFactory = (_, expectedType) =>
     ParameterAssert.typeEqualAssert(expectedType)
+
+  def originalAssert(assertHandler: ((Any, Parameter) => Unit)) =
+    ParameterAssert(assertHandler)
 }
