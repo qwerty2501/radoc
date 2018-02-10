@@ -10,5 +10,7 @@ libraryDependencies ++= Seq(
   "org.scalatest" %% "scalatest" % scalaTestVersion % "test",
   "org.scalactic" %% "scalactic" % scalaTestVersion,
   "org.scala-lang.modules" %% "scala-xml" % scalaXmlVersion,
+  "org.scala-lang" % "scala-compiler" % scalaVersion.value,
+  "com.github.dwickern" %% "scala-nameof" % "1.0.3" % "provided",
   "io.circe" %% "circe-parser" % circeVersion
 )
