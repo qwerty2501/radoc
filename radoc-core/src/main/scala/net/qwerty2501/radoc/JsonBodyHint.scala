@@ -122,11 +122,7 @@ object JsonBodyHint {
 
   private def foldArrayHints(
       jsonArrayHint: JsonArrayHint,
-      sourceMap: Map[String, Seq[Parameter]]): Map[String, Seq[Parameter]] = {
-    jsonArrayHint.childrenHints.foldLeft(sourceMap)((sm, hint) => {
-      foldHints(hint, sm)
-    })
-  }
+      sourceMap: Map[String, Seq[Parameter]]): Map[String, Seq[Parameter]] =  foldHints(jsonArrayHint.childrenTypeHint, sourceMap)
   private def getValueHint(jsonValueHint: JsonValueHint,
                            sourceMap: Map[String, Seq[Parameter]]): Parameter =
     jsonValueHint.parameterHint.parameter

@@ -110,13 +110,11 @@ object GenericJsonHintFactory {
 
       JsonArrayHint(
         generateParameterHint(name, value, typeName, t, fieldHintAnnotation),
-        if (typeName.replace("[]", "") != typeArgName) Seq()
-        else
-          Seq(
-            generate(FieldName(""),
-                     Option.empty,
-                     t.typeArgs.head,
-                     FieldHintAnnotation.default))
+        generate(FieldName(""),
+          Option.empty,
+          t.typeArgs.head,
+          FieldHintAnnotation.default),
+        Seq()
       )
     }
 
