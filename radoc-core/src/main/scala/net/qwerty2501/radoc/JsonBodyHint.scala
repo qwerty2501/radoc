@@ -11,6 +11,7 @@ case class JsonObjectHint(parameterHint: ParameterHint,
     extends JsonHint
 
 case class JsonArrayHint(parameterHint: ParameterHint,
+                         childrenTypeHint:JsonHint,
                          childrenHints: Seq[JsonHint])
     extends JsonHint
 
@@ -59,6 +60,7 @@ object JsonBodyHint {
       jsonArrayHint: JsonArrayHint,
       typeParameterMap: Map[String, Seq[Parameter]]): JsonArrayHint = {
     JsonArrayHint(jsonArrayHint.parameterHint,
+                  jsonArrayHint.childrenTypeHint,
                   jsonArrayHint.childrenHints.map(child =>
                     recompose(child, typeParameterMap)))
   }
@@ -68,10 +70,10 @@ object JsonBodyHint {
       typeParameterMap: Map[String, Seq[Parameter]]): JsonObjectHint = {
     val types =
       typeParameterMap(jsonObjectHint.parameterHint.parameter.typeName)
-    val childlen = jsonObjectHint.childrenHints.map { jsonHint =>
+    val children = jsonObjectHint.childrenHints.map { jsonHint =>
       recomposeChildren(jsonHint, typeParameterMap, types)
     }
-    JsonObjectHint(jsonObjectHint.parameterHint, childlen)
+    JsonObjectHint(jsonObjectHint.parameterHint, children)
   }
 
   private def recomposeChildren(jsonHint: JsonHint,
@@ -90,7 +92,7 @@ object JsonBodyHint {
         JsonObjectHint(newParameterHint, newJsonObjectHint.childrenHints)
 
       case newArrayJsonObjectHint: JsonArrayHint =>
-        JsonArrayHint(newParameterHint, newArrayJsonObjectHint.childrenHints)
+        JsonArrayHint(newParameterHint,newArrayJsonObjectHint.childrenTypeHint, newArrayJsonObjectHint.childrenHints)
       case _: JsonValueHint => JsonValueHint(newParameterHint)
     }
   }
