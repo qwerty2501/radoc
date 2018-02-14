@@ -2,7 +2,7 @@ package net.qwerty2501.radoc
 
 private object ParameterColor {
 
-  def color(): Color = {
+  def color: Color = {
     val index = currentIndex
     currentIndex += 1
     parameterColors(index)

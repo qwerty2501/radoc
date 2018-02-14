@@ -2,21 +2,15 @@ package net.qwerty2501.radoc
 
 import scala.reflect._
 
-case class Parameter private (field: String,
-                              value: Option[_],
-                              typeName: String,
-                              description: Text,
-                              private[radoc] val color: Color) {
-
-  def this(field: String,
-           value: Option[_],
-           typeName: String,
-           description: Text) =
-    this(field, value, typeName, description, ParameterColor.color())
+class Parameter private (val field: String,
+                         val value: Option[_],
+                         val typeName: String,
+                         val description: Text) {
 
   def this(field: String, value: Option[_], tte: Class[_], description: Text) =
     this(field, value, tte.getSimpleName, description)
 
+  lazy val color: Color = ParameterColor.color
 }
 
 object Parameter {
