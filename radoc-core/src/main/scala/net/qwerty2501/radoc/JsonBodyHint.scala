@@ -11,7 +11,7 @@ case class JsonObjectHint(parameterHint: ParameterHint,
     extends JsonHint
 
 case class JsonArrayHint(parameterHint: ParameterHint,
-                         childrenTypeHint:JsonHint,
+                         childrenTypeHint: JsonHint,
                          childrenHints: Seq[JsonHint])
     extends JsonHint
 
@@ -29,19 +29,21 @@ object JsonBodyHint {
     new JsonBodyHint(recompose(jsonHint, typeParameterMap), typeParameterMap)
   }
 
-  def apply[T: TypeTag](defaultFieldModifier: FieldModifier): JsonBodyHint =
+  def apply[T: TypeTag: NotNothing](
+      defaultFieldModifier: FieldModifier): JsonBodyHint =
     apply(GenericJsonHintFactory.generate[T](defaultFieldModifier))
 
-  def apply[T: TypeTag](): JsonBodyHint = apply[T](FieldModifier.Snake)
+  def apply[T: TypeTag: NotNothing](): JsonBodyHint =
+    apply[T](FieldModifier.Snake)
 
-  def expectedHint[T: TypeTag](
+  def expectedHint[T: TypeTag: NotNothing](
       expected: T,
       defaultFieldModifier: FieldModifier): JsonBodyHint =
     apply(
       GenericJsonHintFactory
         .generateExpected(expected, defaultFieldModifier))
 
-  def expectedHint[T: TypeTag](expected: T): JsonBodyHint =
+  def expectedHint[T: TypeTag: NotNothing](expected: T): JsonBodyHint =
     expectedHint[T](expected, FieldModifier.Snake)
 
   private def recompose(
@@ -92,7 +94,9 @@ object JsonBodyHint {
         JsonObjectHint(newParameterHint, newJsonObjectHint.childrenHints)
 
       case newArrayJsonObjectHint: JsonArrayHint =>
-        JsonArrayHint(newParameterHint,newArrayJsonObjectHint.childrenTypeHint, newArrayJsonObjectHint.childrenHints)
+        JsonArrayHint(newParameterHint,
+                      newArrayJsonObjectHint.childrenTypeHint,
+                      newArrayJsonObjectHint.childrenHints)
       case _: JsonValueHint => JsonValueHint(newParameterHint)
     }
   }
@@ -122,7 +126,8 @@ object JsonBodyHint {
 
   private def foldArrayHints(
       jsonArrayHint: JsonArrayHint,
-      sourceMap: Map[String, Seq[Parameter]]): Map[String, Seq[Parameter]] =  foldHints(jsonArrayHint.childrenTypeHint, sourceMap)
+      sourceMap: Map[String, Seq[Parameter]]): Map[String, Seq[Parameter]] =
+    foldHints(jsonArrayHint.childrenTypeHint, sourceMap)
   private def getValueHint(jsonValueHint: JsonValueHint,
                            sourceMap: Map[String, Seq[Parameter]]): Parameter =
     jsonValueHint.parameterHint.parameter
