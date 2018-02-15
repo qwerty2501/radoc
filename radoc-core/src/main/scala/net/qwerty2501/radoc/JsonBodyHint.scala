@@ -1,5 +1,6 @@
 package net.qwerty2501.radoc
 
+import scala.reflect.ClassTag
 import scala.reflect.runtime.universe._
 
 trait JsonHint {
@@ -29,21 +30,22 @@ object JsonBodyHint {
     new JsonBodyHint(recompose(jsonHint, typeParameterMap), typeParameterMap)
   }
 
-  def apply[T: TypeTag: NotNothing](
+  def apply[T: TypeTag: NotNothing: ClassTag](
       defaultFieldModifier: FieldModifier): JsonBodyHint =
     apply(GenericJsonHintFactory.generate[T](defaultFieldModifier))
 
-  def apply[T: TypeTag: NotNothing](): JsonBodyHint =
+  def apply[T: TypeTag: NotNothing: ClassTag](): JsonBodyHint =
     apply[T](FieldModifier.Snake)
 
-  def expectedHint[T: TypeTag: NotNothing](
+  def expectedHint[T: TypeTag: NotNothing: ClassTag](
       expected: T,
       defaultFieldModifier: FieldModifier): JsonBodyHint =
     apply(
       GenericJsonHintFactory
         .generateExpected(expected, defaultFieldModifier))
 
-  def expectedHint[T: TypeTag: NotNothing](expected: T): JsonBodyHint =
+  def expectedHint[T: TypeTag: NotNothing: ClassTag](
+      expected: T): JsonBodyHint =
     expectedHint[T](expected, FieldModifier.Snake)
 
   private def recompose(
