@@ -1,9 +1,10 @@
 package net.qwerty2501.radoc
-import java.time._
-import java.time.chrono.ChronoZonedDateTime
+
 import scala.reflect.runtime.universe._
 import scala.tools.reflect.ToolBox
 import com.github.dwickern.macros.NameOf._
+
+import scala.reflect.ClassTag
 
 object GenericJsonHintFactory {
 
@@ -17,18 +18,21 @@ object GenericJsonHintFactory {
       else fieldModifier.fieldModify(name)
   }
   private final val seqTypeName = classOf[Seq[_]].getName
-  private val mirror = runtimeMirror(
-    classOf[FieldHintAnnotation].getClassLoader)
-  private val toolbox = mirror.mkToolBox()
+  private val fieldAnnotationType = typeOf[FieldHintAnnotation]
+  private val toolbox =
+    runtimeMirror(classOf[FieldHintAnnotation].getClassLoader).mkToolBox()
 
   private val jsonValueTypes = Seq(
-    typeOf[String],
-    typeOf[ChronoZonedDateTime[LocalDate]]
+    typeOf[String]
   )
 
-  def generate[T: TypeTag: NotNothing](
-      defaultFieldModifier: FieldModifier): JsonHint = {
-    new DefaultGenerator(defaultFieldModifier).generate(
+  def generate[T: TypeTag: NotNothing: ClassTag](
+      defaultFieldModifier: FieldModifier)(
+      implicit ctg: ClassTag[T]): JsonHint = {
+
+    new DefaultGenerator(
+      defaultFieldModifier,
+      runtimeMirror(ctg.runtimeClass.getClassLoader)).generate(
       FieldName(""),
       Option.empty,
       typeOf[T],
@@ -42,6 +46,7 @@ object GenericJsonHintFactory {
   private trait Generator {
     val defaultFieldModifier: FieldModifier
     val defaultAssertFactory: ParameterAssertFactory
+    val mirror: Mirror
 
     def generate(fieldName: FieldName,
                  value: Option[_],
@@ -73,7 +78,9 @@ object GenericJsonHintFactory {
                       t: Type,
                       fieldHintAnnotation: FieldHintAnnotation): JsonHint
 
-    def typeToClass(t: Type): Class[_] = rootMirror.runtimeClass(t)
+    def typeToClass(t: Type): Class[_] = {
+      mirror.runtimeClass(t)
+    }
 
     protected def getTypeName(t: Type): String =
       t.typeSymbol.asClass.name.toTypeName.toString
@@ -87,7 +94,7 @@ object GenericJsonHintFactory {
       ParameterHint(
         Parameter(name.getName(defaultFieldModifier, fieldHintAnnotation),
                   value,
-                  typeName,
+                  pickTypeName(typeName, fieldHintAnnotation),
                   fieldHintAnnotation.parameter.description),
         (if (fieldHintAnnotation.defaultParameterAssertFactory != ParameterAssertFactory.default)
            fieldHintAnnotation.defaultParameterAssertFactory
@@ -104,7 +111,8 @@ object GenericJsonHintFactory {
   }
 
   private class DefaultGenerator(
-      override val defaultFieldModifier: FieldModifier)
+      override val defaultFieldModifier: FieldModifier,
+      override val mirror: Mirror)
       extends Generator {
 
     override val defaultAssertFactory: ParameterAssertFactory =
@@ -116,10 +124,13 @@ object GenericJsonHintFactory {
                       fieldHintAnnotation: FieldHintAnnotation): JsonHint = {
       val typeArgName = t.typeArgs.headOption
         .fold("____unknown_generic_argument_type____")(getTypeName)
-      val typeName = pickTypeName("[]" + typeArgName, fieldHintAnnotation)
 
       JsonArrayHint(
-        generateParameterHint(name, value, typeName, t, fieldHintAnnotation),
+        generateParameterHint(name,
+                              value,
+                              "[]" + typeArgName,
+                              t,
+                              fieldHintAnnotation),
         generate(FieldName(""),
                  Option.empty,
                  t.typeArgs.head,
@@ -142,7 +153,8 @@ object GenericJsonHintFactory {
         t.members.collect {
           case m: MethodSymbol if m.isGetter && m.isPublic =>
             val faOption =
-              m.annotations.find(_.tree.tpe =:= typeOf[FieldHintAnnotation])
+              m.annotations.find(_.tree.tpe =:= fieldAnnotationType)
+
             val fannotation = faOption.fold(FieldHintAnnotation.default) { p =>
               toolbox
                 .eval(toolbox.untypecheck(p.tree))
@@ -171,7 +183,7 @@ object GenericJsonHintFactory {
       JsonValueHint(
         generateParameterHint(name,
                               value,
-                              pickTypeName(getTypeName(t), fieldHintAnnotation),
+                              getTypeName(t),
                               t,
                               fieldHintAnnotation))
   }
