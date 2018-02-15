@@ -1,7 +1,9 @@
 package net.qwerty2501.radoc
 
 import scala.annotation.StaticAnnotation
+import scala.annotation.meta.getter
 
+@getter
 case class FieldHintAnnotation(
     parameter: Parameter,
     essentiality: Essentiality,
