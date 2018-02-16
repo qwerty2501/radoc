@@ -1,7 +1,7 @@
 package net.qwerty2501.radoc
 
 import scala.reflect._
-import scala.reflect.runtime.universe._
+
 class Parameter private (val field: String,
                          val value: Option[_],
                          val typeName: String,

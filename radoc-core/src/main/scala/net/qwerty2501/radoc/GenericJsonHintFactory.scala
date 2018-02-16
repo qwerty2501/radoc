@@ -1,6 +1,6 @@
 package net.qwerty2501.radoc
 
-import scala.reflect.runtime.universe._
+
 import scala.tools.reflect.ToolBox
 import com.github.dwickern.macros.NameOf._
 

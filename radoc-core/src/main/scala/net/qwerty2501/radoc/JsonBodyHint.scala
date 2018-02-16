@@ -1,7 +1,7 @@
 package net.qwerty2501.radoc
 
 import scala.reflect.ClassTag
-import scala.reflect.runtime.universe._
+
 
 trait JsonHint {
   val parameterHint: ParameterHint

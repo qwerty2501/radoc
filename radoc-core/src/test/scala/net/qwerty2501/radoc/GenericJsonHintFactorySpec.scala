@@ -2,7 +2,7 @@ package net.qwerty2501.radoc
 
 import org.scalatest._
 import net.qwerty2501.radoc._
-import scala.reflect.runtime.universe._
+
 
 case class TestChild(message: String, value: Double)
 
