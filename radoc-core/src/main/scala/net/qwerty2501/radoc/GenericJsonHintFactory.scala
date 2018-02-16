@@ -5,11 +5,11 @@ import scala.tools.reflect.ToolBox
 import com.github.dwickern.macros.NameOf._
 
 import scala.reflect.ClassTag
+import scala.reflect.macros.blackbox
 
 object GenericJsonHintFactory {
 
-  private type JsonFieldHandler =
-    (FieldName, Option[_], Type, FieldModifier) => JsonHint
+
   private case class FieldName(private val name: String) {
     def getName(fieldModifier: FieldModifier,
                 fieldHintAnnotation: FieldHintAnnotation): String =
@@ -18,35 +18,33 @@ object GenericJsonHintFactory {
       else fieldModifier.fieldModify(name)
   }
   private final val seqTypeName = classOf[Seq[_]].getName
-  private val fieldAnnotationType = typeOf[FieldHintAnnotation]
-  private val toolbox =
-    runtimeMirror(classOf[FieldHintAnnotation].getClassLoader).mkToolBox()
 
-  private val jsonValueTypes = Seq(
-    typeOf[String]
-  )
 
-  def generate[T: TypeTag: NotNothing: ClassTag](
-      defaultFieldModifier: FieldModifier)(
-      implicit ctg: ClassTag[T]): JsonHint = {
+
+
+
+  def generate[T: NotNothing](defaultFieldModifier:FieldModifier)= macro _generate[T]
+  def _generate[T: c.TypeTag:NotNothing](c:blackbox.Context)(defaultFieldModifier:FieldModifier): JsonHint = {
+
 
     new DefaultGenerator(
       defaultFieldModifier,
-      runtimeMirror(ctg.runtimeClass.getClassLoader)).generate(
+      c).generate(
       FieldName(""),
       Option.empty,
-      typeOf[T],
+      c.typeOf[T],
       FieldHintAnnotation.default)
   }
 
-  def generateExpected[T: TypeTag: NotNothing](
+  def generateExpected[T:  NotNothing](
       expected: T,
       defaultFieldModifier: FieldModifier): JsonHint = ???
 
   private trait Generator {
     val defaultFieldModifier: FieldModifier
+    val c:blackbox.Context
     val defaultAssertFactory: ParameterAssertFactory
-    val mirror: Mirror
+    val mirror = c.mirror
 
     def generate(fieldName: FieldName,
                  value: Option[_],
@@ -112,7 +110,7 @@ object GenericJsonHintFactory {
 
   private class DefaultGenerator(
       override val defaultFieldModifier: FieldModifier,
-      override val mirror: Mirror)
+      override val c:blackbox.Context)
       extends Generator {
 
     override val defaultAssertFactory: ParameterAssertFactory =
