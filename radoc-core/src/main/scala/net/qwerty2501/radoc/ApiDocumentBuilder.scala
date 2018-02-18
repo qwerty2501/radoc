@@ -68,7 +68,10 @@ class ApiDocumentBuilder(private val apiClient: ApiClient,
         apiDocument.method,
         apiDocument.path,
         apiDocument.messageDocumentMap + (messageName ->
-          MessageDocument(messageName, req, res)),
+          MessageDocument(
+            messageName,
+            req.copy(bodyHint = documentArgs.requestBodyHint.upgrade(req)),
+            res.copy(bodyHint = documentArgs.responseBodyHint.upgrade(res)))),
         if (documentArgs.description != Text())
           if (apiDocument.description != Text() && documentArgs.description != Text())
             Text(apiDocument.description, documentArgs.description)

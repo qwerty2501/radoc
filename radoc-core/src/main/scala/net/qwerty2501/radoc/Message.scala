@@ -3,4 +3,5 @@ package net.qwerty2501.radoc
 trait Message {
   val headers: HeaderParameterList
   val body: Body
+  val bodyHint: BodyHint
 }

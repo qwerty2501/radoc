@@ -15,19 +15,22 @@ case class JsonArrayHint(parameterHint: ParameterHint,
 
 case class JsonValueHint(parameterHint: ParameterHint) extends JsonHint
 
-class JsonBodyHint private (
+private case class JsonNothingHint() extends JsonHint {
+  override val parameterHint: ParameterHint =
+    ParameterHint("", "Nothing", Text())
+}
+
+class JsonBodyHint private[radoc] (
     val jsonHint: JsonHint,
-    override val rootTypeName: String,
     override val typeParameterMap: Map[String, Seq[Parameter]])
     extends BodyHint
 
 object JsonBodyHint {
 
+  private[radoc] def apply() = new JsonBodyHint(JsonNothingHint(), Map())
   def apply(jsonHint: JsonHint): JsonBodyHint = {
     val typeParameterMap = foldHints(jsonHint, Map())
-    new JsonBodyHint(recompose(jsonHint, typeParameterMap),
-                     jsonHint.parameterHint.typeName,
-                     typeParameterMap)
+    new JsonBodyHint(recompose(jsonHint, typeParameterMap), typeParameterMap)
   }
 
   private def recompose(

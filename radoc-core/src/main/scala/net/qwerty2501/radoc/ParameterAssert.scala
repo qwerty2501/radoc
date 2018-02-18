@@ -3,7 +3,7 @@ package net.qwerty2501.radoc
 import java.util.Objects
 
 trait ParameterAssert {
-  def assert(actual: Option[_], parameter: Parameter)
+  def assert(actual: Option[_], parameter: ParameterHint)
 }
 
 object ParameterAssert {
@@ -21,6 +21,7 @@ object ParameterAssert {
         throw new AssertionError(
           "The expected is" + expected.getOrNull.toString + "but the actual is" + actual.getOrNull.toString)
 
-  def apply(assertHandler: ((Option[_], Parameter) => Unit)): ParameterAssert =
+  def apply(
+      assertHandler: ((Option[_], ParameterHint) => Unit)): ParameterAssert =
     (actual, parameter) => assertHandler(actual, parameter)
 }

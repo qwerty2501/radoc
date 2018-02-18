@@ -22,7 +22,6 @@ class JsonBodyHintSpec extends FlatSpec with Matchers {
                          ))
         )
       ))
-    hint.rootTypeName should be("TestRoot")
 
     hint.jsonHint match {
       case root: JsonObjectHint if root.parameterHint.field == "" =>
