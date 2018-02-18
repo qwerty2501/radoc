@@ -4,7 +4,7 @@ import com.github.dwickern.macros.NameOf._
 import io.circe._
 
 private class JsonBodyHintMerger {
-  var unknownTypeCount: Int = 0
+  private var unknownTypeCount: Int = 0
   def merge(json: Json, jsonBodyHint: JsonBodyHint): JsonBodyHint = {
 
     val (hint, typeParameterMap) = mergeParameterHints(
