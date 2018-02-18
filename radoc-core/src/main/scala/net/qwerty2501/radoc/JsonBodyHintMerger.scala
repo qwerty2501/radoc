@@ -87,7 +87,9 @@ private class JsonBodyHintMerger {
           }
       }
 
-    (JsonObjectHint(jsonObjectHint.parameterHint, nHints), nTm)
+    (JsonObjectHint(jsonObjectHint.parameterHint, nHints),
+     nTm + (jsonObjectHint.parameterHint.typeName -> nHints.map(
+       _.parameterHint.toParameter)))
 
   }
 
