@@ -3,11 +3,18 @@ package net.qwerty2501.radoc
 case class Request private (method: Method,
                             path: UrlPath,
                             headers: HeaderParameterList,
-                            body: Body)
+                            body: Body,
+                            bodyHint: BodyHint)
     extends Message {
 
+  private[radoc] def this(method: Method,
+                          path: UrlPath,
+                          headers: Seq[Parameter],
+                          body: Body,
+                          bodyHint: BodyHint) =
+    this(method, path, HeaderParameterList(headers), body, bodyHint)
   def this(method: Method, path: UrlPath, headers: Seq[Parameter], body: Body) =
-    this(method, path, HeaderParameterList(headers), body)
+    this(method, path, HeaderParameterList(headers), body, BodyHint())
 
 }
 
@@ -28,6 +35,19 @@ object Request {
   def delete(path: UrlPath): Request = delete(path, Seq(), Body())
   def delete(path: UrlPath, headers: Seq[Parameter], body: Body): Request =
     apply(Method.Delete, path, headers, body)
+
+  private def apply(method: Method,
+                    path: UrlPath,
+                    headers: HeaderParameterList,
+                    body: Body,
+                    bodyHint: BodyHint) =
+    new Request(method, path, headers, body, bodyHint)
+  private[radoc] def apply(method: Method,
+                           path: UrlPath,
+                           headers: Seq[Parameter],
+                           body: Body,
+                           bodyHint: BodyHint): Request =
+    new Request(method, path, headers, body, bodyHint)
 
   def apply(method: Method,
             path: UrlPath,
