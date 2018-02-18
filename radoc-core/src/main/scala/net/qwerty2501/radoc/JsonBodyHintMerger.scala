@@ -102,14 +102,17 @@ private class JsonBodyHintMerger {
         val (hint, newTpm) =
           mergeParameterHints(json, jsonArrayHint.childrenTypeHint, "", tpm)
 
-        (hints :+ hint, newTpm)
+        if (jsonArrayHint.childrenTypeHint.isInstanceOf[JsonNothingHint])
+          (hints, tpm)
+        else
+          (hints :+ hint, newTpm)
       }
 
     val childTypeHint =
       if (rHints.isEmpty && !jsonArrayHint.childrenTypeHint
             .isInstanceOf[JsonNothingHint]) {
         jsonArrayHint.childrenTypeHint
-      } else if (rHints.length == 1) {
+      } else if (rHints.lengthCompare(1) == 0) {
         rHints.head
       } else {
         JsonValueHint(
