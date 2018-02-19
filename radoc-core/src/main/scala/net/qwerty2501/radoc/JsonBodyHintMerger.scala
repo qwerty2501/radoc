@@ -102,14 +102,17 @@ private class JsonBodyHintMerger {
   ): (JsonArrayHint, Map[String, Seq[Parameter]]) = {
     val (rHints, rTpm) =
       jsonArray.foldLeft((Seq[JsonHint](), typeParameterMap)) { (args, json) =>
-        val (hints, tpm) = args
-        val (hint, newTpm) =
-          mergeParameterHints(json, jsonArrayHint.childrenTypeHint, "", tpm)
+        val (sourceHints, sourceTypeParameterMap) = args
+        val (newHint, newTypeParameterMap) =
+          mergeParameterHints(json,
+                              jsonArrayHint.childrenTypeHint,
+                              "",
+                              sourceTypeParameterMap)
 
-        if (jsonArrayHint.childrenTypeHint.isInstanceOf[JsonNothingHint])
-          (hints, tpm)
+        if (jsonArray.head != json)
+          (sourceHints, sourceTypeParameterMap)
         else
-          (hints :+ hint, newTpm)
+          (sourceHints :+ newHint, newTypeParameterMap)
       }
 
     val childTypeHint =
@@ -166,9 +169,7 @@ private class JsonBodyHintMerger {
     jsonHint match {
       case jsonArrayHint: JsonArrayHint => jsonArrayHint
       case _: JsonNothingHint =>
-        JsonArrayHint(TypeParameterHint("[]", Text()),
-                       JsonNothingHint(),
-                       Seq())
+        JsonArrayHint(TypeParameterHint("[]", Text()), JsonNothingHint(), Seq())
       case actual =>
         throw new AssertionError(
           "expected:" + nameOf(JsonArrayHint) + " but actual:" + actual.getClass.getSimpleName)

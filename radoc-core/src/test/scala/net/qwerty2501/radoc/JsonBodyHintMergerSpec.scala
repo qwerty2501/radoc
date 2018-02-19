@@ -89,4 +89,34 @@ class JsonBodyHintMergerSpec extends FlatSpec with Matchers {
 
   }
 
+  it should "first element to type map " in {
+    val newHint = merge(
+      """
+        |{
+        | "test_array":[
+        |   {
+        |     "member1":333
+        |   },
+        |   {
+        |     "member2":"test"
+        |   }
+        | ]
+        |}
+      """.stripMargin,
+      JsonBodyHint()
+    )
+
+    newHint.typeParameterMap.size should be(2)
+
+    val unknownObject1 = newHint.typeParameterMap("UnknownObject1")
+    unknownObject1.length should be(1)
+    unknownObject1.head.field should be("test_array")
+    unknownObject1.head.typeName should be("[]UnknownObject2")
+
+    val unknownObject2 = newHint.typeParameterMap("UnknownObject2")
+    unknownObject2.length should be(1)
+    unknownObject2.head.field should be("member1")
+    unknownObject2.head.typeName should be("Number")
+  }
+
 }
