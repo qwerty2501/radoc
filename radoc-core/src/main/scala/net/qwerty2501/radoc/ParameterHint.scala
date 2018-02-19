@@ -15,10 +15,7 @@ case class ParameterHint(field: String,
   def this(field: String, valueTypeName: String, description: Text) =
     this(field, valueTypeName, description, Essentiality.Mandatory)
 
-  def this(valueTypeName: String, description: Text) =
-    this("", valueTypeName, description)
 
-  def this(valueTypeName: String) = this(valueTypeName, Text())
 
   def toParameter: Parameter =
     Parameter(field, Option.empty, typeName, description)
@@ -37,11 +34,7 @@ object ParameterHint {
             description: Text): ParameterHint =
     new ParameterHint(field, valueTypeName, description, Essentiality.Mandatory)
 
-  def apply(valueTypeName: String, description: Text): ParameterHint =
-    new ParameterHint(valueTypeName, description)
 
-  def apply(valueTypeName: String): ParameterHint =
-    new ParameterHint(valueTypeName)
 
   def withEqualAssert(field: String,
                       expected: Option[_],

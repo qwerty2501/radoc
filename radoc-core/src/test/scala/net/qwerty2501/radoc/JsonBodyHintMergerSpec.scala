@@ -59,13 +59,13 @@ class JsonBodyHintMergerSpec extends FlatSpec with Matchers {
         |}
       """.stripMargin,
       JsonBodyHint(
-        JsonObjectHint(
-          ParameterHint("TestObject", Text()),
-          Seq(
-            JsonValueHint(
-              ParameterHint("member1", "Int", Text("member1_text"))),
-            JsonValueHint(
-              ParameterHint("member2", "String", Text("member2_text")))
+        JsonHint.Object(
+          TypeParameterHint("TestObject", Text()),
+          Map(
+            "member1"->JsonHint.Value(
+              TypeParameterHint( "Int", Text("member1_text"))),
+            "member2"->JsonHint.Value(
+              TypeParameterHint( "String", Text("member2_text")))
           )
         ))
     )
