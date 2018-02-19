@@ -6,46 +6,46 @@ class JsonBodyHintSpec extends FlatSpec with Matchers {
 
   it should "recompose same type" in {
     val hint = JsonBodyHint(
-      JsonHint.Object(
+      JsonObjectHint(
         TypeParameterHint("TestRoot", Text()),
         Map(
-          "member1"->JsonHint.Object(
+          "member1"->JsonObjectHint(
             TypeParameterHint( "TestObject1", Text()),
             Map(
-              "id"->JsonHint.Value(TypeParameterHint( "Int", Text())),
-              "id2"->JsonHint.Value(TypeParameterHint( "Double", Text()))
+              "id"->JsonValueHint(TypeParameterHint( "Int", Text())),
+              "id2"->JsonValueHint(TypeParameterHint( "Double", Text()))
             )
           ),
-          "member2"->JsonHint.Object(TypeParameterHint( "TestObject1", Text()),
+          "member2"->JsonObjectHint(TypeParameterHint( "TestObject1", Text()),
                          Map(
-                           "tt"->JsonHint.Value(TypeParameterHint( "String", Text()))
+                           "tt"->JsonValueHint(TypeParameterHint( "String", Text()))
                          ))
         )
       ))
 
     hint.jsonHint match {
-      case root: JsonHint.Object  =>
+      case root: JsonObjectHint  =>
         root.typeParameterHint.typeName should be("TestRoot")
         root.childrenHintMap.foreach {
-          case (field:String,member1:JsonHint.Object)
+          case (field:String,member1:JsonObjectHint)
               if field == "member1" =>
             member1.typeParameterHint.typeName should be("TestObject1")
 
             member1.childrenHintMap.foreach {
-              case (field:String,id: JsonHint.Value )if field== "id" =>
+              case (field:String,id: JsonValueHint )if field== "id" =>
                 id.typeParameterHint.typeName should be("Int")
 
-              case (field:String,id2: JsonHint.Value) if field == "id2" =>
+              case (field:String,id2: JsonValueHint) if field == "id2" =>
                 id2.typeParameterHint.typeName should be("Double")
 
               case invalidId => fail("invalid Id:" + invalidId)
             }
 
-          case (field:String,member2: JsonHint.Object)
+          case (field:String,member2: JsonObjectHint)
               if field == "member2" =>
             member2.typeParameterHint.typeName should be("TestObject1")
             member2.childrenHintMap.foreach {
-              case (field:String,tt: JsonHint.Value) if field == "tt" =>
+              case (field:String,tt: JsonValueHint) if field == "tt" =>
                 tt.typeParameterHint.typeName should be("String")
               case invalidTt => fail("invalid tt:" + invalidTt)
             }
