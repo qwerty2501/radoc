@@ -38,7 +38,7 @@ class JsonBodyHintMergerSpec extends FlatSpec with Matchers {
 
     newHint.typeParameterMap.size should be(1)
 
-    val parameters = newHint.typeParameterMap("Unknown Object 1")
+    val parameters = newHint.typeParameterMap("UnknownObject1")
     parameters.length should be(2)
     checkParameter(parameters.head, "member1", "Number", Text())
 
@@ -62,10 +62,10 @@ class JsonBodyHintMergerSpec extends FlatSpec with Matchers {
         JsonHint.Object(
           TypeParameterHint("TestObject", Text()),
           Map(
-            "member1"->JsonHint.Value(
-              TypeParameterHint( "Int", Text("member1_text"))),
-            "member2"->JsonHint.Value(
-              TypeParameterHint( "String", Text("member2_text")))
+            "member1" -> JsonHint.Value(
+              TypeParameterHint("Int", Text("member1_text"))),
+            "member2" -> JsonHint.Value(
+              TypeParameterHint("String", Text("member2_text")))
           )
         ))
     )
@@ -78,9 +78,9 @@ class JsonBodyHintMergerSpec extends FlatSpec with Matchers {
 
     checkParameter(parameters(1), "member2", "String", Text("member2_text"))
 
-    checkParameter(parameters(2), "member3", "Unknown Object 1", Text())
+    checkParameter(parameters(2), "member3", "UnknownObject1", Text())
 
-    val childParameters = newHint.typeParameterMap("Unknown Object 1")
+    val childParameters = newHint.typeParameterMap("UnknownObject1")
     childParameters.length should be(2)
 
     checkParameter(childParameters.head, "child_member1", "String", Text())

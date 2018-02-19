@@ -56,23 +56,24 @@ private class JsonBodyHintMerger {
 
     val (newJsonObjectMap, newTypeParameterMap, newChildrenHints) =
       jsonObjectHint.childrenHintMap.foldLeft(
-        (jsonObject.toMap, typeParameterMap, Map[String,JsonHint]())) { (args, hintTuple) =>
-        val (j, t, hints) = args
-        val (field,hint) = hintTuple
+        (jsonObject.toMap, typeParameterMap, Map[String, JsonHint]())) {
+        (args, hintTuple) =>
+          val (j, t, hints) = args
+          val (field, hint) = hintTuple
 
-        if (j.isEmpty && hint.typeParameterHint.essentiality != Essentiality.Mandatory) {
-          (j - field, t, hints)
-        } else {
-          val child = j.getOrElse(
-            field,
-            throw new AssertionError(
-              s"expected field :$field but actual has don't have $field"))
+          if (j.isEmpty && hint.typeParameterHint.essentiality != Essentiality.Mandatory) {
+            (j - field, t, hints)
+          } else {
+            val child = j.getOrElse(
+              field,
+              throw new AssertionError(
+                s"expected field :$field but actual has don't have $field"))
 
-          val (newHint, newTMap) =
-            mergeParameterHints(child, hint, field, t)
+            val (newHint, newTMap) =
+              mergeParameterHints(child, hint, field, t)
 
-          (j - field, newTMap, hints + (field ->newHint))
-        }
+            (j - field, newTMap, hints + (field -> newHint))
+          }
       }
 
     val (nTm, nHints) =
@@ -83,13 +84,14 @@ private class JsonBodyHintMerger {
             val (newTpm, newChs) = args
             val (rHint, rTpm) =
               mergeParameterHints(json, JsonNothingHint(), key, newTpm)
-            (rTpm, newChs + (key->rHint))
+            (rTpm, newChs + (key -> rHint))
           }
       }
 
     (JsonHint.Object(jsonObjectHint.typeParameterHint, nHints),
-     nTm + (jsonObjectHint.typeParameterHint.typeName -> nHints.map(f=>
-       f._2.typeParameterHint.toParameterHint(f._1).toParameter).toSeq))
+     nTm + (jsonObjectHint.typeParameterHint.typeName -> nHints
+       .map(f => f._2.typeParameterHint.toParameterHint(f._1).toParameter)
+       .toSeq))
 
   }
 
@@ -114,19 +116,20 @@ private class JsonBodyHintMerger {
       if (rHints.isEmpty && !jsonArrayHint.childrenTypeHint
             .isInstanceOf[JsonNothingHint]) {
         jsonArrayHint.childrenTypeHint
-      } else if (rHints.lengthCompare(1) == 0) {
+      } else if (rHints.nonEmpty) {
         rHints.head
       } else {
         JsonHint.Value(
           TypeParameterHint(
-            "(" + rHints.map(_.typeParameterHint.typeName).mkString("|") + ")",
+            "Nothing",
             jsonArrayHint.childrenTypeHint.typeParameterHint.description))
       }
 
-    (JsonHint.Array(jsonArrayHint.typeParameterHint.copy(
-                     typeName = "[]" + childTypeHint.typeParameterHint.typeName),
-                   childTypeHint,
-                   rHints),
+    (JsonHint.Array(
+       jsonArrayHint.typeParameterHint.copy(
+         typeName = "[]" + childTypeHint.typeParameterHint.typeName),
+       childTypeHint,
+       rHints),
      rTpm)
   }
 
@@ -153,7 +156,7 @@ private class JsonBodyHintMerger {
     jsonHint match {
       case jsonValueHint: JsonHint.Value => jsonValueHint
       case _: JsonNothingHint =>
-        JsonHint.Value(TypeParameterHint( typeName))
+        JsonHint.Value(TypeParameterHint(typeName))
       case actual =>
         throw new AssertionError(
           "expected:" + nameOf(JsonHint.Value) + " but actual:" + actual.getClass.getSimpleName)
@@ -163,9 +166,9 @@ private class JsonBodyHintMerger {
     jsonHint match {
       case jsonArrayHint: JsonHint.Array => jsonArrayHint
       case _: JsonNothingHint =>
-        JsonHint.Array(TypeParameterHint( "[]", Text()),
-                      JsonNothingHint(),
-                      Seq())
+        JsonHint.Array(TypeParameterHint("[]", Text()),
+                       JsonNothingHint(),
+                       Seq())
       case actual =>
         throw new AssertionError(
           "expected:" + nameOf(JsonHint.Array) + " but actual:" + actual.getClass.getSimpleName)
@@ -175,7 +178,7 @@ private class JsonBodyHintMerger {
     jsonHint match {
       case jsonObjectHint: JsonHint.Object => jsonObjectHint
       case _: JsonNothingHint =>
-        JsonHint.Object(TypeParameterHint( objectName(), Text()), Map())
+        JsonHint.Object(TypeParameterHint(objectName(), Text()), Map())
       case actual =>
         throw new AssertionError(
           "expected:" + nameOf(JsonObject) + " but actual:" + actual.getClass.getSimpleName)
@@ -183,7 +186,7 @@ private class JsonBodyHintMerger {
 
   private def objectName(): String = {
     unknownTypeCount += 1
-    "Unknown Object " + unknownTypeCount
+    "UnknownObject" + unknownTypeCount
   }
 
 }
