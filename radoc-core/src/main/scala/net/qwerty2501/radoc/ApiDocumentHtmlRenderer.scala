@@ -206,7 +206,7 @@ private object ApiDocumentHtmlRenderer {
         </ul>
         <div class="tab-content">
           {apiDocument.messageDocumentMap.values.map(messageDocument =>
-          renderMessageDocument(messageDocument,apiDocument,currentGroup,currentCategory,currentApiDocumentWithVersion,rootApiDocument,context))
+          renderMessageDocument(HtmlRenderArguments(rootApiDocument,currentApiDocumentWithVersion,currentCategory,currentGroup,apiDocument,messageDocument,context)))
           }
         </div>
 
@@ -217,124 +217,117 @@ private object ApiDocumentHtmlRenderer {
 
   }
 
-  private[radoc] def renderMessageDocument(
-      messageDocument: MessageDocument,
-      currentApiDocument: ApiDocument,
-      currentGroup: ApiDocumentGroup,
-      currentCategory: ApiDocumentCategory,
-      currentApiDocumentWithVersion: RootApiDocumentWithVersion,
-      rootApiDocument: RootApiDocument,
-      context: ApiDocumentHtmlRendererContext): Elem = {
-
-    def renderMessage(message: Message,
-                      renderMessageHeadHandler: => Node,
-                      contentId: String): Elem = {
+  def renderMessage(message: Message,
+                    renderMessageHeadHandler: => Node,
+                    contentId: String,
+                    htmlRenderArguments: HtmlRenderArguments): Elem = {
+    <div>
       <div>
-        <div>
-          {renderParameters("Headers", message.headers.getHeaders)}
-          {
-            if (message.bodyHint.typeParameterMap.nonEmpty){
-              <span class="font-weight-bold" style="font-size:20px;">Body Content Fields</span>
-              <div class="card card-body bg-light">
-                {renderBodyHint(message.bodyHint)}
-              </div>
-            }
-          }
-
-        </div>
-        {renderExample(message,renderMessageHeadHandler,contentId)}
-      </div>
-
-    }
-
-    def renderExample(message: Message,
-                      renderMessageHeadHandler: => Node,
-                      contentId: String): Node = {
-
-      <details>
-          <summary>expand example</summary>
-          <div style="background:black;color:white;" >
-            {renderMessageHeadHandler}
-            {renderContent(message,contentId)}
-          </div>
-        </details>
-
-    }
-
-    def renderContent(message: Message, contentId: String): Node = {
-      val renderArguments = HtmlRenderArguments(rootApiDocument,
-                                                currentApiDocumentWithVersion,
-                                                currentCategory,
-                                                currentGroup,
-                                                currentApiDocument,
-                                                messageDocument,
-                                                context)
-      if (context.contentHtmlRenderer != null) {
-        context.contentHtmlRenderer.render(message, renderArguments)
-      } else {
-        ContentHtmlRenderer.default.render(message, renderArguments)
-      }
-
-    }
-
-    def renderParameters(title: String, parameters: Seq[Parameter]): Node = {
-      if (parameters.nonEmpty) {
-        <div>
-          <div ><span class="font-weight-bold" style="font-size:20px;">{title}</span></div>
-          <table class="table table-sm table-striped table-bordered">
-            <thead class="thead-inverse">
-              <tr>
-                <th scope="col" >Field</th>
-                <th scope="col" >Type</th>
-                <th scope="col" >Description</th>
-              </tr>
-            </thead>
-            {
-            parameters.map { parameter =>
-              <tr >
-                <td scope="row" style="width:15%;">{renderParameter(parameter,parameter.field)}</td>
-                <td style="width:15%;" >{parameter.typeName}</td>
-                <td style="width:70%;" >{parameter.description.renderHtml(
-                  HtmlRenderArguments(
-                    rootApiDocument,currentApiDocumentWithVersion,currentCategory,
-                    currentGroup,currentApiDocument,messageDocument,context
-                  ))}
-                </td>
-              </tr>
-            }
-            }
-          </table>
-
-        </div>
-
-      } else xml.Text("")
-
-    }
-
-    def renderBodyHint(bodyHint: BodyHint): Node = {
-      <div>
+        {renderParameters("Headers", message.headers.getHeaders,htmlRenderArguments)}
         {
-          bodyHint.typeParameterMap.map {
-            case (key, value) => renderParameters(key, value)
-          }
+        if (message.bodyHint.typeParameterMap.nonEmpty){
+          <span class="font-weight-bold" style="font-size:20px;">Body Content Fields</span>
+            <div class="card card-body bg-light">
+              {renderBodyHint(message.bodyHint,htmlRenderArguments)}
+            </div>
         }
-      </div>
-    }
-    val ti = tabId(currentApiDocument, messageDocument)
-    <div id={ti} class={"tab-pane" + (if (messageDocument == currentApiDocument.messageDocumentMap.values.head)" active" else "") } >
-      <p>
-        {renderUrlPathOuter(renderDisplayUrlPath(messageDocument.request.path))}
-        <h3>Request</h3>
-        {renderUrlPathOuter(renderActualURLPath(messageDocument.request.path))}
-        {renderParameters("Path parameters",messageDocument.request.path.pathParameters)}
-        {renderParameters("Queries",messageDocument.request.path.queries)}
+        }
 
-        <div>{renderMessage(messageDocument.request,xml.Text(""),"request-content-" + ti)}</div>
+      </div>
+      {renderExample(message,renderMessageHeadHandler,contentId,htmlRenderArguments)}
+    </div>
+
+  }
+
+  def renderParameters(title: String,
+                       parameters: Seq[Parameter],
+                       htmlRenderArguments: HtmlRenderArguments): Node = {
+    if (parameters.nonEmpty) {
+      <div>
+        <div ><span class="font-weight-bold" style="font-size:20px;">{title}</span></div>
+        <table class="table table-sm table-striped table-bordered">
+          <thead class="thead-inverse">
+            <tr>
+              <th scope="col" >Field</th>
+              <th scope="col" >Type</th>
+              <th scope="col" >Description</th>
+            </tr>
+          </thead>
+          {
+          parameters.map { parameter =>
+            <tr >
+              <td scope="row" style="width:15%;">{renderParameter(parameter,parameter.field)}</td>
+              <td style="width:15%;" >{parameter.typeName}</td>
+              <td style="width:70%;" >{parameter.description.renderHtml(htmlRenderArguments)}
+              </td>
+            </tr>
+          }
+          }
+        </table>
+
+      </div>
+
+    } else xml.Text("")
+
+  }
+
+  def renderExample(message: Message,
+                    renderMessageHeadHandler: => Node,
+                    contentId: String,
+                    htmlRenderArguments: HtmlRenderArguments): Node = {
+
+    <details>
+      <summary>expand example</summary>
+      <div style="background:black;color:white;" >
+        {renderMessageHeadHandler}
+        {renderContent(message,contentId,htmlRenderArguments)}
+      </div>
+    </details>
+
+  }
+
+  def renderContent(message: Message,
+                    contentId: String,
+                    htmlRenderArguments: HtmlRenderArguments): Node = {
+    val context = htmlRenderArguments.context
+    if (context.contentHtmlRenderer != null) {
+      context.contentHtmlRenderer.render(message, htmlRenderArguments)
+    } else {
+      ContentHtmlRenderer.default.render(message, htmlRenderArguments)
+    }
+
+  }
+
+  def renderBodyHint(bodyHint: BodyHint,
+                     htmlRenderArguments: HtmlRenderArguments): Node = {
+    <div>
+      {
+      bodyHint.typeParameterMap.map {
+        case (key, value) => renderParameters(key, value,htmlRenderArguments)
+      }
+      }
+    </div>
+  }
+
+  private[radoc] def renderMessageDocument(
+      htmlRenderArguments: HtmlRenderArguments): Elem = {
+    val currentApiDocument = htmlRenderArguments.currentAPIDocument
+    val currentMessageDocument = htmlRenderArguments.currentMessageDocument
+    val ti = tabId(currentApiDocument, currentMessageDocument)
+    <div id={ti} class={"tab-pane" + (if (currentMessageDocument == currentApiDocument.messageDocumentMap.values.head)" active" else "") } >
+      <p>
+        {renderUrlPathOuter(renderDisplayUrlPath(currentMessageDocument.request.path))}
+        <h3>Request</h3>
+        {renderUrlPathOuter(renderActualURLPath(currentMessageDocument.request.path))}
+        {renderParameters("Path parameters",currentMessageDocument.request.path.pathParameters,htmlRenderArguments)}
+        {renderParameters("Queries",currentMessageDocument.request.path.queries,htmlRenderArguments)}
+
+        <div>{renderMessage(currentMessageDocument.request,xml.Text(""),"request-content-" + ti,htmlRenderArguments)}</div>
       </p>
 
       <p>
         <h3>Response</h3>
-        <div>{renderMessage(messageDocument.response,xml.Text(""),"response-content-"+ ti)}</div>
+        <div>{renderMessage(currentMessageDocument.response,xml.Text(""),"response-content-"+ ti,htmlRenderArguments)}</div>
       </p>
 
     </div>
