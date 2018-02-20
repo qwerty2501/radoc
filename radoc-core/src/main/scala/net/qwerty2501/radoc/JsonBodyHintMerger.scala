@@ -136,7 +136,7 @@ private class JsonBodyHintMerger {
                                 "",
                                 sourceTypeParameterMap)
 
-          if (jsonArray.head != json)
+          if (checkedArray.head != json || sourceHints.nonEmpty)
             (sourceHints, sourceTypeParameterMap)
           else
             (sourceHints :+ newHint, newTypeParameterMap)
