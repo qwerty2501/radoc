@@ -1,29 +1,80 @@
 package net.qwerty2501.radoc
 
-trait JsonHint {
-  val typeParameterHint: TypeParameterHint
+import io.circe._
+
+trait JsonHint[T] {
+  val typeParameterHint: TypeParameterHint[T]
 }
 
-case class JsonObjectHint(typeParameterHint: TypeParameterHint,
-                          childrenHintMap: Map[String, JsonHint])
-    extends JsonHint
+case class JsonObjectHint(typeParameterHint: TypeParameterHint[JsonObject],
+                          childrenHintMap: Map[String, JsonHint[_]])
+    extends JsonHint[JsonObject]
 
-case class JsonArrayHint(typeParameterHint: TypeParameterHint,
-                         childrenTypeHint: JsonHint,
-                         childrenHints: Seq[JsonHint])
-    extends JsonHint
+case class JsonArrayHint(typeParameterHint: TypeParameterHint[Seq[Json]],
+                         childrenHints: Seq[JsonHint[_]])
+    extends JsonHint[Seq[Json]] {}
 
-case class JsonValueHint(typeParameterHint: TypeParameterHint) extends JsonHint
+trait JsonValueHint[T] extends JsonHint[T] {
+  val typeParameterHint: TypeParameterHint[T]
+}
 
-object JsonHint {}
+class JsonNumberHint private[radoc] (
+    override val typeParameterHint: TypeParameterHint[Double])
+    extends JsonValueHint[Double] {
+  def this(parameterHint: SmallParameterHint[Double]) =
+    this(parameterHint.toTypeParameterHint("Number"))
+}
 
-private case class JsonNothingHint() extends JsonHint {
-  override val typeParameterHint: TypeParameterHint =
+object JsonNumberHint {
+  def apply(parameterHint: SmallParameterHint[Double]): JsonNumberHint =
+    new JsonNumberHint(parameterHint)
+}
+
+class JsonStringHint private[radoc] (
+    override val typeParameterHint: TypeParameterHint[String])
+    extends JsonValueHint[String] {
+
+  def this(parameterHint: SmallParameterHint[String]) =
+    this(parameterHint.toTypeParameterHint("String"))
+}
+
+object JsonStringHint {
+  def apply(parameterHint: SmallParameterHint[String]): JsonStringHint =
+    new JsonStringHint(parameterHint)
+}
+
+class JsonBooleanHint private[radoc] (
+    override val typeParameterHint: TypeParameterHint[Boolean])
+    extends JsonValueHint[Boolean] {
+  def this(parameterHint: SmallParameterHint[Boolean]) =
+    this(parameterHint.toTypeParameterHint("Boolean"))
+}
+
+object JsonBooleanHint {
+  def apply(parameterHint: SmallParameterHint[Boolean]): JsonBooleanHint =
+    new JsonBooleanHint(parameterHint)
+}
+
+class JsonNullHint private[radoc] (
+    override val typeParameterHint: TypeParameterHint[Nothing])
+    extends JsonValueHint[Nothing] {
+  def this(parameterHint: SmallParameterHint[Nothing]) =
+    this(parameterHint.toTypeParameterHint("Nothing"))
+
+}
+
+object JsonNullHint {
+  def apply(parameterHint: SmallParameterHint[Nothing]): JsonNullHint =
+    new JsonNullHint(parameterHint)
+}
+
+private case class JsonNothingHint() extends JsonHint[Nothing] {
+  override val typeParameterHint: TypeParameterHint[Nothing] =
     TypeParameterHint("Nothing")
 }
 
 private class JsonBodyHint private[radoc] (
-    val jsonHint: JsonHint,
+    val jsonHint: JsonHint[_],
     override val typeParameterMap: Map[String, Seq[Parameter]])
     extends BodyHint
 
@@ -31,78 +82,13 @@ private object JsonBodyHint {
 
   private[radoc] def apply() = new JsonBodyHint(JsonNothingHint(), Map())
 
-  def apply(jsonHint: JsonHint): JsonBodyHint = {
+  def apply(jsonHint: JsonHint[_]): JsonBodyHint = {
     val typeParameterMap = foldHints(jsonHint, Map())
-    new JsonBodyHint(recompose(jsonHint, typeParameterMap), typeParameterMap)
-  }
-
-  private def recompose(
-      jsonHint: JsonHint,
-      typeParameterMap: Map[String, Seq[Parameter]]): JsonHint = {
-
-    jsonHint match {
-      case jsonObjectHint: JsonObjectHint =>
-        recompose(jsonObjectHint, typeParameterMap)
-      case jsonArrayHint: JsonArrayHint =>
-        recompose(jsonArrayHint, typeParameterMap)
-      case jsonValue: JsonValueHint => jsonValue
-    }
-  }
-
-  private def recompose(
-      jsonArrayHint: JsonArrayHint,
-      typeParameterMap: Map[String, Seq[Parameter]]): JsonArrayHint = {
-    val types =
-      typeParameterMap(
-        jsonArrayHint.childrenTypeHint.typeParameterHint.typeName)
-    JsonArrayHint(
-      jsonArrayHint.typeParameterHint,
-      jsonArrayHint.childrenTypeHint,
-      jsonArrayHint.childrenHints.map(child =>
-        recomposeChildren("", child, typeParameterMap, types))
-    )
-  }
-
-  private def recompose(
-      jsonObjectHint: JsonObjectHint,
-      typeParameterMap: Map[String, Seq[Parameter]]): JsonObjectHint = {
-    val types =
-      typeParameterMap(jsonObjectHint.typeParameterHint.typeName)
-    val children = jsonObjectHint.childrenHintMap.map {
-      case (key, jsonHint) =>
-        (key, recomposeChildren(key, jsonHint, typeParameterMap, types))
-    }
-    JsonObjectHint(jsonObjectHint.typeParameterHint, children)
-  }
-
-  private def recomposeChildren(field: String,
-                                jsonHint: JsonHint,
-                                typeParameterMap: Map[String, Seq[Parameter]],
-                                types: Seq[Parameter]): JsonHint = {
-    val newJsonHint = recompose(jsonHint, typeParameterMap)
-    val newParameter = types
-      .find(_.field == field)
-      .getOrElse(
-        newJsonHint.typeParameterHint.toParameterHint(field).toParameter)
-    val newTypeParameterHint =
-      TypeParameterHint(newParameter.typeName,
-                        newParameter.description,
-                        newJsonHint.typeParameterHint.assert,
-                        newJsonHint.typeParameterHint.essentiality)
-    jsonHint match {
-      case newJsonHint: JsonObjectHint =>
-        JsonObjectHint(newTypeParameterHint, newJsonHint.childrenHintMap)
-
-      case newArrayJsonHint: JsonArrayHint =>
-        JsonArrayHint(newTypeParameterHint,
-                      newArrayJsonHint.childrenTypeHint,
-                      newArrayJsonHint.childrenHints)
-      case _: JsonValueHint => JsonValueHint(newTypeParameterHint)
-    }
+    new JsonBodyHint(jsonHint, typeParameterMap)
   }
 
   private def foldHints(
-      jsonHint: JsonHint,
+      jsonHint: JsonHint[_],
       sourceMap: Map[String, Seq[Parameter]]): Map[String, Seq[Parameter]] =
     jsonHint match {
       case jo: JsonObjectHint => foldObjectHints(jo, sourceMap)
@@ -121,15 +107,23 @@ private object JsonBodyHint {
 
     jsonObjectHint.childrenHintMap.foldLeft(
       sourceMap + getObjectHints(jsonObjectHint)) { (sm, jh) =>
-      foldHints(jh._2, sm)
+      if (jh._2.typeParameterHint.essentiality == Essentiality.Excluded) {
+        sm
+      } else {
+        foldHints(jh._2, sm)
+      }
     }
   }
 
   private def foldArrayHints(
       jsonArrayHint: JsonArrayHint,
       sourceMap: Map[String, Seq[Parameter]]): Map[String, Seq[Parameter]] =
-    foldHints(jsonArrayHint.childrenTypeHint, sourceMap)
-  private def getValueHint(jsonValueHint: JsonValueHint,
+    jsonArrayHint.childrenHints.foldLeft(sourceMap) {
+      (childHint, argSourceMap) =>
+        foldHints(argSourceMap, childHint)
+    }
+
+  private def getValueHint(jsonValueHint: JsonValueHint[_],
                            sourceMap: Map[String, Seq[Parameter]]): Parameter =
     jsonValueHint.typeParameterHint.toParameterHint("").toParameter
 

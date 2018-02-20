@@ -40,5 +40,5 @@ object BodyHint {
       typeParameterMap: Map[String, Seq[Parameter]]): BodyHint =
     ParameterBodyHint(typeParameterMap)
 
-  def apply(jsonHint: JsonHint): BodyHint = JsonBodyHint(jsonHint)
+  def apply(jsonHint: JsonHint[_]): BodyHint = JsonBodyHint(jsonHint)
 }

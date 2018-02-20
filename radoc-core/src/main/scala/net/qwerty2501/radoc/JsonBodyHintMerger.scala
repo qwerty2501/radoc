@@ -16,26 +16,26 @@ private class JsonBodyHintMerger {
   }
 
   private def mergeParameterHints(json: Json,
-                                  jsonHint: JsonHint,
+                                  jsonHint: JsonHint[_],
                                   field: String,
                                   typeParameterMap: Map[String, Seq[Parameter]])
-    : (JsonHint, Map[String, Seq[Parameter]]) = {
+    : (JsonHint[_], Map[String, Seq[Parameter]]) = {
 
     json.fold(
-      mergeParameterHints(null.asInstanceOf[Any],
-                          toValue(field, "Nothing", jsonHint),
+      mergeParameterHints(null.asInstanceOf[Nothing],
+                          toNull(field, jsonHint),
                           typeParameterMap),
       jsonBoolean =>
         mergeParameterHints(jsonBoolean,
-                            toValue(field, nameOf(Boolean), jsonHint),
+                            toBoolean(field, jsonHint),
                             typeParameterMap),
       jsonNumber =>
         mergeParameterHints(jsonNumber,
-                            toValue(field, "Number", jsonHint),
+                            toNumber(field, jsonHint),
                             typeParameterMap),
       jsonString =>
         mergeParameterHints(jsonString,
-                            toValue(field, "String", jsonHint),
+                            toJsonString(field, jsonHint),
                             typeParameterMap),
       jsonArray =>
         mergeParameterHints(jsonArray,
@@ -53,10 +53,10 @@ private class JsonBodyHintMerger {
                                   jsonObjectHint: JsonObjectHint,
                                   typeParameterMap: Map[String, Seq[Parameter]])
     : (JsonObjectHint, Map[String, Seq[Parameter]]) = {
-
+    jsonObjectHint.typeParameterHint.assert(Option(jsonObject))
     val (newJsonObjectMap, newTypeParameterMap, newChildrenHints) =
       jsonObjectHint.childrenHintMap.foldLeft(
-        (jsonObject.toMap, typeParameterMap, Map[String, JsonHint]())) {
+        (jsonObject.toMap, typeParameterMap, Map[String, JsonHint[_]]())) {
         (args, hintTuple) =>
           val (j, t, hints) = args
           val (field, hint) = hintTuple
@@ -96,86 +96,157 @@ private class JsonBodyHintMerger {
   }
 
   private def mergeParameterHints(
-      jsonArray: Vector[Json],
+      jsonArray: Seq[Json],
       jsonArrayHint: JsonArrayHint,
       typeParameterMap: Map[String, Seq[Parameter]]
   ): (JsonArrayHint, Map[String, Seq[Parameter]]) = {
+    jsonArrayHint.typeParameterHint.assert(Option(jsonArray))
+    val (checkedArray, checkedHints, checkedTypeParameterMap) =
+      jsonArrayHint.childrenHints.zipWithIndex
+        .foldLeft((jsonArray, Seq[JsonHint[_]](), typeParameterMap)) {
+          (args, tHint) =>
+            args match {
+              case (jsonArray: Seq[Json],
+                    hints: Seq[JsonHint[_]],
+                    typeParameterMap: Map[String, Seq[Parameter]]) =>
+                val (hint, index) = tHint
+                val compareResult = jsonArray
+                  .lengthCompare(index) > 0
+                if (hint.typeParameterHint.essentiality == Essentiality.Mandatory && !compareResult) {
+                  throw new AssertionError(
+                    "The hint essentiality is mandatory, but actual json array is not enough length.")
+                } else if (compareResult) {
+                  val targetJson = jsonArray(index)
+                  val (newJsonHint, newTypeParameterMap) =
+                    mergeParameterHints(targetJson, hint, "", typeParameterMap)
+                  (jsonArray.drop(index),
+                   hints :+ newJsonHint,
+                   newTypeParameterMap)
+                } else {
+                  (jsonArray, hints, typeParameterMap)
+                }
+
+            }
+        }
     val (rHints, rTpm) =
-      jsonArray.foldLeft((Seq[JsonHint](), typeParameterMap)) { (args, json) =>
-        val (sourceHints, sourceTypeParameterMap) = args
-        val (newHint, newTypeParameterMap) =
-          mergeParameterHints(json,
-                              jsonArrayHint.childrenTypeHint,
-                              "",
-                              sourceTypeParameterMap)
+      checkedArray.foldLeft((checkedHints, checkedTypeParameterMap)) {
+        (args, json) =>
+          val (sourceHints, sourceTypeParameterMap) = args
+          val (newHint, newTypeParameterMap) =
+            mergeParameterHints(json,
+                                JsonNothingHint(),
+                                "",
+                                sourceTypeParameterMap)
 
-        if (jsonArray.head != json)
-          (sourceHints, sourceTypeParameterMap)
-        else
-          (sourceHints :+ newHint, newTypeParameterMap)
+          if (jsonArray.head != json)
+            (sourceHints, sourceTypeParameterMap)
+          else
+            (sourceHints :+ newHint, newTypeParameterMap)
       }
 
-    val childTypeHint =
-      if (rHints.isEmpty && !jsonArrayHint.childrenTypeHint
-            .isInstanceOf[JsonNothingHint]) {
-        jsonArrayHint.childrenTypeHint
-      } else if (rHints.nonEmpty) {
-        rHints.head
-      } else {
-        JsonValueHint(
-          TypeParameterHint(
-            "Nothing",
-            jsonArrayHint.childrenTypeHint.typeParameterHint.description))
-      }
-
-    (JsonArrayHint(
-       jsonArrayHint.typeParameterHint.copy(
-         typeName = "[]" + childTypeHint.typeParameterHint.typeName),
-       childTypeHint,
-       rHints),
+    (JsonArrayHint(jsonArrayHint.typeParameterHint.copy(
+                     typeName = "[]" + rHints.headOption.fold("")(
+                       _.typeParameterHint.typeName)),
+                   rHints),
      rTpm)
   }
 
   private def mergeParameterHints(
       jsonNumber: JsonNumber,
-      jsonValueHint: JsonValueHint,
+      jsonNumberHint: JsonNumberHint,
       typeParameterMap: Map[String, Seq[Parameter]]
-  ): (JsonValueHint, Map[String, Seq[Parameter]]) =
-    mergeParameterHints(jsonNumber.toDouble, jsonValueHint, typeParameterMap)
-
+  ): (JsonNumberHint, Map[String, Seq[Parameter]]) = {
+    jsonNumberHint.typeParameterHint.assert(Option(jsonNumber.toDouble))
+    (jsonNumberHint, typeParameterMap)
+  }
   private def mergeParameterHints(
-      jsonValue: Any,
-      jsonValueHint: JsonValueHint,
+      jsonValue: String,
+      jsonValueHint: JsonStringHint,
       typeParameterMap: Map[String, Seq[Parameter]]
-  ): (JsonValueHint, Map[String, Seq[Parameter]]) = {
-    jsonValueHint.typeParameterHint.assert
-      .assert(Option(jsonValue))
+  ): (JsonStringHint, Map[String, Seq[Parameter]]) = {
+    jsonValueHint.typeParameterHint.assert(Option(jsonValue))
     (jsonValueHint, typeParameterMap)
   }
 
-  private def toValue(field: String,
-                      typeName: String,
-                      jsonHint: JsonHint): JsonValueHint =
+  private def mergeParameterHints(
+      jsonValue: Nothing,
+      jsonValueHint: JsonNullHint,
+      typeParameterMap: Map[String, Seq[Parameter]]
+  ): (JsonNullHint, Map[String, Seq[Parameter]]) = {
+    jsonValueHint.typeParameterHint.assert(Option(jsonValue))
+    (jsonValueHint, typeParameterMap)
+  }
+
+  private def mergeParameterHints(
+      jsonValue: Boolean,
+      jsonValueHint: JsonBooleanHint,
+      typeParameterMap: Map[String, Seq[Parameter]]
+  ): (JsonBooleanHint, Map[String, Seq[Parameter]]) = {
+    jsonValueHint.typeParameterHint.assert(Option(jsonValue))
+    (jsonValueHint, typeParameterMap)
+  }
+
+  private def toNumber(field: String, jsonHint: JsonHint[_]): JsonNumberHint =
     jsonHint match {
-      case jsonValueHint: JsonValueHint => jsonValueHint
+      case jsonNumberHint: JsonNumberHint => jsonNumberHint
       case _: JsonNothingHint =>
-        JsonValueHint(TypeParameterHint(typeName))
+        new JsonNumberHint(SmallParameterHint[Double]())
       case actual =>
         throw new AssertionError(
-          "expected:" + nameOf(JsonValueHint) + " but actual:" + actual.getClass.getSimpleName)
+          "expected:" + nameOf(JsonNumber) + " but actual:" + actual.getClass.getSimpleName)
     }
 
-  private def toArray(field: String, jsonHint: JsonHint): JsonArrayHint =
+  private def toBoolean(field: String, jsonHint: JsonHint[_]): JsonBooleanHint =
+    jsonHint match {
+      case jsonBooleanHint: JsonBooleanHint => jsonBooleanHint
+      case _: JsonNothingHint =>
+        new JsonBooleanHint(SmallParameterHint[Boolean]())
+      case actual =>
+        throw new AssertionError(
+          "expected:" + nameOf(JsonBooleanHint) + " but actual:" + actual.getClass.getSimpleName)
+    }
+
+  private def toJsonString(field: String,
+                           jsonHint: JsonHint[_]): JsonStringHint =
+    jsonHint match {
+      case jsonStringHint: JsonStringHint => jsonStringHint
+      case _: JsonNothingHint =>
+        new JsonStringHint(SmallParameterHint[String]())
+      case actual =>
+        throw new AssertionError(
+          "expected:" + nameOf(JsonStringHint) + " but actual:" + actual.getClass.getSimpleName)
+    }
+
+  private def toString(field: String, jsonHint: JsonHint[_]): JsonBooleanHint =
+    jsonHint match {
+      case jsonBooleanHint: JsonBooleanHint => jsonBooleanHint
+      case _: JsonNothingHint =>
+        new JsonBooleanHint(SmallParameterHint[Boolean]())
+      case actual =>
+        throw new AssertionError(
+          "expected:" + nameOf(JsonBooleanHint) + " but actual:" + actual.getClass.getSimpleName)
+    }
+  private def toNull(field: String, jsonHint: JsonHint[_]): JsonNullHint =
+    jsonHint match {
+      case jsonNullHint: JsonNullHint => jsonNullHint
+      case _: JsonNothingHint =>
+        new JsonNullHint(SmallParameterHint[Nothing]())
+      case actual =>
+        throw new AssertionError(
+          "expected:" + nameOf(JsonNullHint) + " but actual:" + actual.getClass.getSimpleName)
+    }
+
+  private def toArray(field: String, jsonHint: JsonHint[_]): JsonArrayHint =
     jsonHint match {
       case jsonArrayHint: JsonArrayHint => jsonArrayHint
       case _: JsonNothingHint =>
-        JsonArrayHint(TypeParameterHint("[]", Text()), JsonNothingHint(), Seq())
+        JsonArrayHint(TypeParameterHint("[]", Text()), Seq())
       case actual =>
         throw new AssertionError(
           "expected:" + nameOf(JsonArrayHint) + " but actual:" + actual.getClass.getSimpleName)
     }
 
-  private def toObject(field: String, jsonHint: JsonHint): JsonObjectHint =
+  private def toObject(field: String, jsonHint: JsonHint[_]): JsonObjectHint =
     jsonHint match {
       case jsonObjectHint: JsonObjectHint => jsonObjectHint
       case _: JsonNothingHint =>

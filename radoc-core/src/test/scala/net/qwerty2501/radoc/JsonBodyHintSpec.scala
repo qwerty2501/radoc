@@ -1,51 +1,53 @@
 package net.qwerty2501.radoc
 
+import io.circe.JsonObject
 import org.scalatest._
 
 class JsonBodyHintSpec extends FlatSpec with Matchers {
 
   it should "recompose same type" in {
-    val hint = JsonBodyHint(
-      JsonObjectHint(
-        TypeParameterHint("TestRoot", Text()),
-        Map(
-          "member1"->JsonObjectHint(
-            TypeParameterHint( "TestObject1", Text()),
-            Map(
-              "id"->JsonValueHint(TypeParameterHint( "Int", Text())),
-              "id2"->JsonValueHint(TypeParameterHint( "Double", Text()))
-            )
-          ),
-          "member2"->JsonObjectHint(TypeParameterHint( "TestObject1", Text()),
-                         Map(
-                           "tt"->JsonValueHint(TypeParameterHint( "String", Text()))
-                         ))
-        )
-      ))
+
+    val strHint = JsonStringHint(SmallParameterHint(Text()))
+    val obj = JsonObjectHint(
+      TypeParameterHint("TestRoot", Text()),
+      Map(
+        "member1" -> JsonObjectHint(
+          TypeParameterHint("TestObject1", Text()),
+          Map(
+            "id" -> JsonNumberHint(SmallParameterHint(Text())),
+            "id2" -> JsonNumberHint(SmallParameterHint(Text()))
+          )
+        ),
+        "member2" -> JsonObjectHint(
+          TypeParameterHint("TestObject1", Text()),
+          Map(
+            "tt" -> JsonStringHint(SmallParameterHint(Text()))
+          ))
+      )
+    )
+    val hint = JsonBodyHint(obj)
 
     hint.jsonHint match {
-      case root: JsonObjectHint  =>
+      case root: JsonObjectHint =>
         root.typeParameterHint.typeName should be("TestRoot")
         root.childrenHintMap.foreach {
-          case (field:String,member1:JsonObjectHint)
-              if field == "member1" =>
+          case (field: String, member1: JsonObjectHint) if field == "member1" =>
             member1.typeParameterHint.typeName should be("TestObject1")
 
             member1.childrenHintMap.foreach {
-              case (field:String,id: JsonValueHint )if field== "id" =>
-                id.typeParameterHint.typeName should be("Int")
+              case (field: String, id: JsonNumberHint) if field == "id" =>
+                id.typeParameterHint.typeName should be("Number")
 
-              case (field:String,id2: JsonValueHint) if field == "id2" =>
-                id2.typeParameterHint.typeName should be("Double")
+              case (field: String, id2: JsonNumberHint) if field == "id2" =>
+                id2.typeParameterHint.typeName should be("Number")
 
               case invalidId => fail("invalid Id:" + invalidId)
             }
 
-          case (field:String,member2: JsonObjectHint)
-              if field == "member2" =>
+          case (field: String, member2: JsonObjectHint) if field == "member2" =>
             member2.typeParameterHint.typeName should be("TestObject1")
             member2.childrenHintMap.foreach {
-              case (field:String,tt: JsonValueHint) if field == "tt" =>
+              case (field: String, tt: JsonStringHint) if field == "tt" =>
                 tt.typeParameterHint.typeName should be("String")
               case invalidTt => fail("invalid tt:" + invalidTt)
             }
