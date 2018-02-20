@@ -22,9 +22,7 @@ private class JsonBodyHintMerger {
     : (JsonHint[_], Map[String, Seq[Parameter]]) = {
 
     json.fold(
-      mergeParameterHints(null.asInstanceOf[Nothing],
-                          toNull(field, jsonHint),
-                          typeParameterMap),
+      mergeParameterHints(null, toNull(field, jsonHint), typeParameterMap),
       jsonBoolean =>
         mergeParameterHints(jsonBoolean,
                             toBoolean(field, jsonHint),
@@ -169,7 +167,7 @@ private class JsonBodyHintMerger {
   }
 
   private def mergeParameterHints(
-      jsonValue: Nothing,
+      jsonValue: Null,
       jsonValueHint: JsonNullHint,
       typeParameterMap: Map[String, Seq[Parameter]]
   ): (JsonNullHint, Map[String, Seq[Parameter]]) = {
@@ -230,7 +228,7 @@ private class JsonBodyHintMerger {
     jsonHint match {
       case jsonNullHint: JsonNullHint => jsonNullHint
       case _: JsonNothingHint =>
-        new JsonNullHint(SmallParameterHint[Nothing]())
+        new JsonNullHint(SmallParameterHint[Null]())
       case actual =>
         throw new AssertionError(
           "expected:" + nameOf(JsonNullHint) + " but actual:" + actual.getClass.getSimpleName)

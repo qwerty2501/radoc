@@ -56,15 +56,15 @@ object JsonBooleanHint {
 }
 
 class JsonNullHint private[radoc] (
-    override val typeParameterHint: TypeParameterHint[Nothing])
-    extends JsonValueHint[Nothing] {
-  def this(parameterHint: SmallParameterHint[Nothing]) =
+    override val typeParameterHint: TypeParameterHint[Null])
+    extends JsonValueHint[Null] {
+  def this(parameterHint: SmallParameterHint[Null]) =
     this(parameterHint.toTypeParameterHint("Nothing"))
 
 }
 
 object JsonNullHint {
-  def apply(parameterHint: SmallParameterHint[Nothing]): JsonNullHint =
+  def apply(parameterHint: SmallParameterHint[Null]): JsonNullHint =
     new JsonNullHint(parameterHint)
 }
 
